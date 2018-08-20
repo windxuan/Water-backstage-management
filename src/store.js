@@ -1,27 +1,30 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
-import axios from 'axios'
+import Vue from 'vue';
+import Vuex from 'vuex';
+import axios from 'axios';
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
+    disabled: false, // 第三弹框编辑禁用状态
+    dialogVisible: true, // 弹框显示隐藏的状态 -- 默认为隐藏
+    token: '',
     firstListData: [],
     secondListData: [],
     thirdListData: [],
   },
   getters: {},
   mutations: {
+    // 获取 token
+    setToken(state, token) {
+      state.token = token;
+    },
   },
   actions: {
     // 因子Tab数据
     getFactorData() {
       // 获取Factor请求数据
-      axios.get('http://192.168.6.163:8080/api/factor', {
-        headers: { // 此处需要一个合法请求头
-          // Authorization:  token,
-        },
-      })
+      axios.get('http://192.168.6.163:8080/api/factor')
         .then((response) => { // 请求成功
           console.log(response);
           console.log('成功!');

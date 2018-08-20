@@ -104,6 +104,9 @@
         </template>
         </el-table-column>
     </el-table>
+
+      <!-- Dialog弹框内容 -->
+      <analyse-dialog></analyse-dialog>
     </div>
 </template>
 <script>

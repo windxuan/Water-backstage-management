@@ -95,6 +95,9 @@
         </template>
         </el-table-column>
     </el-table>
+
+      <!-- Dialog弹框内容 -->
+      <method-dialog></method-dialog>
     </div>
 </template>
 <script>

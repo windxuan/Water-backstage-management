@@ -86,6 +86,9 @@
         </template>
         </el-table-column>
     </el-table>
+
+      <!-- Dialog弹框内容 -->
+      <factor-dialog></factor-dialog>
     </div>
 </template>
 <script>

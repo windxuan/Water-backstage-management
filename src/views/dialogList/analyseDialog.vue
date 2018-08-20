@@ -1,13 +1,71 @@
 <template>
-    <div>
-      这里是analyse分析弹框内容
+    <div class="analyseDialog">
+      <!-- dialog -->
+       这里是analyse分析弹框内容
+      <el-dialog
+      title="add"
+      :visible.sync="dialogVisible"
+      width="28%">
+
+      <!-- from -->
+      <el-form
+       :model="ruleForm"
+       :rules="rules" 
+        ref="ruleForm"
+        label-width="100px" 
+        class="demo-ruleForm"
+        :label-position="right">
+
+        <!-- 因子 -->
+        <el-form-item label="因子" prop="factorName">
+          <!-- 因子 -->
+          <!-- 获取数据的下拉框 -->
+          <el-autocomplete
+          :disabled="disabled"
+          clearable
+          v-model="ruleForm.factorName"
+          :fetch-suggestions="querySearchAsync"
+          placeholder="请输入内容"
+          @select="handleSelect"
+          ></el-autocomplete>
+        </el-form-item>
+
+        <!-- 方法 -->
+        <el-form-item label="方法" prop="methodName">
+          <!-- 方法 -->
+          <!-- 获取数据的下拉框 -->
+          <el-autocomplete
+          :disabled="disabled"
+          clearable
+          v-model="ruleForm.methodName"
+          :fetch-suggestions="querySearchAsync"
+          placeholder="请输入内容"
+          @select="handleSelect"
+          ></el-autocomplete>
+        </el-form-item>
+
+        <!-- 标准号 -->
+        <el-form-item label="标准号">
+          <el-input v-model="ruleForm.standard"></el-input>
+        </el-form-item>
+
+        <!-- 别名 -->
+        <el-form-item label="别名">
+          <el-input v-model="ruleForm.alias"></el-input>
+        </el-form-item>
+
+        <!-- 权重 -->
+        <el-form-item label="权重">
+          <el-input v-model="ruleForm.weight"></el-input>
+        </el-form-item>
+
+      </el-form>
       <br>
-      <el-autocomplete
-        v-model="state3"
-        :fetch-suggestions="querySearchAsync"
-        placeholder="请输入内容"
-        @select="handleSelect"
-        ></el-autocomplete>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+      </span>
+      </el-dialog>
     </div>
 </template>
 <script>
@@ -15,8 +73,24 @@ export default {
   data() {
     return {
       restaurants: [],
-      state3: '',
       timeout: null,
+      dialogVisible: this.$store.state.dialogVisible, //弹出显示隐藏状态 -- 默认为 -- 隐藏/false
+      disabled: this.$store.state.disabled, // 禁用状态
+      ruleForm: {
+        factorName: '', // 因子
+        methodName: '', // 方法
+        standard: '', // 标准号
+        alias: '',    // 别名
+        weight: '0',  // 权重
+      },
+      rules: {
+        factorName: [
+          { required: true, message: '请输入因子名称', trigger: 'blur' },
+        ],
+        methodName: [
+          { required: true, message: '请输入方法名称', trigger: 'blur' },
+        ],
+      },
     };
   },
   methods: {
