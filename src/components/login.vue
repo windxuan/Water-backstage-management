@@ -43,6 +43,8 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   name: 'Login',
   data() {
@@ -57,7 +59,7 @@ export default {
   methods: {
     submit() {
       this.loading = true;
-      this.$http.post('login', {
+      axios.post('login', {
         username: this.form.username,  //获取登录名
         password: this.form.password,  //获取对应密码
       })
@@ -75,7 +77,7 @@ export default {
                 duration: 1500,
               });
               this.$router.push({ //路由跳转使页面进入 'summary'
-                name: 'summary',
+                name: 'Tabsheet',
               });
             } else {  //否则 ：登录失败
               this.$router.replace('/login');

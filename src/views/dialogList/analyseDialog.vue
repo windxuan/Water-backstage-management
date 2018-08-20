@@ -44,19 +44,36 @@
           ></el-autocomplete>
         </el-form-item>
 
-        <!-- 标准号 -->
-        <el-form-item label="标准号">
-          <el-input v-model="ruleForm.standard"></el-input>
+        <!-- 单位 -->
+        <el-form-item label="单位">
+          <el-select v-model="ruleForm.unit" multiple placeholder="请选择">
+            <el-option
+              v-for="item in options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
         </el-form-item>
 
-        <!-- 别名 -->
-        <el-form-item label="别名">
-          <el-input v-model="ruleForm.alias"></el-input>
+        <!-- 章节 -->
+        <el-form-item label="章节">
+          <el-input v-model="ruleForm.chapter"></el-input>
         </el-form-item>
 
-        <!-- 权重 -->
-        <el-form-item label="权重">
-          <el-input v-model="ruleForm.weight"></el-input>
+        <!-- 有效位数 -->
+        <el-form-item label="有效位数">
+          <el-input v-model="ruleForm.significant"></el-input>
+        </el-form-item>
+
+        <!-- 精度 -->
+        <el-form-item label="精度">
+          <el-input v-model="ruleForm.priority"></el-input>
+        </el-form-item>
+
+        <!-- 优先级 -->
+        <el-form-item label="优先级">
+          <el-input v-model="ruleForm.priority"></el-input>
         </el-form-item>
 
       </el-form>
@@ -76,12 +93,29 @@ export default {
       timeout: null,
       dialogVisible: this.$store.state.dialogVisible, //弹出显示隐藏状态 -- 默认为 -- 隐藏/false
       disabled: this.$store.state.disabled, // 禁用状态
+      options: [{
+        value: '选项1',
+        label: 'cm'
+      }, {
+        value: '选项2',
+        label: 'mol/L'
+      }, {
+        value: '选项3',
+        label: 'L'
+      }, {
+        value: '选项4',
+        label: 'mm'
+      }, {
+        value: '选项5',
+        label: 'mol/KG'
+      }],
       ruleForm: {
         factorName: '', // 因子
         methodName: '', // 方法
-        standard: '', // 标准号
-        alias: '',    // 别名
-        weight: '0',  // 权重
+        unit: '', //单位
+        chapter: '', // 章节
+        significant: '',    // 有效位数
+        priority: '0',  // 优先级
       },
       rules: {
         factorName: [
