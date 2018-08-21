@@ -25,7 +25,7 @@
 
         <!-- 表格 -->
         <!-- 报数据渲染数据 -->
-        <!-- el-table -- 报入总数据 -->
+        <!-- el-table -- 报入总数据 : listData -->
         <el-table
         stripe
         :data="listData"
@@ -78,11 +78,11 @@
         <template slot-scope="scope">
             <el-button
             size="mini"
-            @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+            @click="handleEdit">编辑</el-button>
             <el-button
             size="mini"
             type="danger"
-            @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+            @click="handleDelete">删除</el-button>
         </template>
         </el-table-column>
     </el-table>
@@ -92,95 +92,76 @@
     </div>
 </template>
 <script>
+import { mapState, mapMutations } from 'vuex';
+
 // 导入子组件
 import factorDialog from './dialogList/factorDialog.vue';
 
 export default {
   data() {
     return {
-      listData: [ // 源数据
-        {
-          date: '01',
-          name: '王小虎',
-          address: '1518',
-          standard: '11',
-          priority: '0',
-        }, {
-          date: '02',
-          name: '王小虎',
-          address: '1517',
-          standard: '11',
-          priority: '0',
-        }, {
-          date: '03',
-          name: '王小虎',
-          address: '1519',
-          standard: '11',
-          priority: '0',
-        }, {
-          date: '04',
-          name: '王小虎',
-          address: '1516',
-          standard: '11',
-          priority: '0',
-        }, {
-          date: '05',
-          name: '王小虎',
-          address: '1516',
-          standard: '11',
-          priority: '0',
-        }, {
-          date: '06',
-          name: '王小虎',
-          address: '1516',
-          standard: '11',
-          priority: '0',
-        }, {
-          date: '07',
-          name: '王小虎',
-          address: '1516',
-          standard: '11',
-          priority: '0',
-        }, {
-          date: '08',
-          name: '王小虎',
-          address: '1516',
-          standard: '11',
-          priority: '0',
-        }, {
-          date: '09',
-          name: '王小虎',
-          address: '1516',
-          standard: '11',
-          priority: '0',
-        },
-      ],
+      listData: [], // 源数据
       input: '', // 模糊查询框
       staffPageSize: 8, // 每页显示多少条数据 -- 默认为8条
       staffCurrentPage: 1, // 第几页 -- 默认在第一页
       staffTotalCount: 0, // 表示显示页码总数
-      refreshLoading: false,  // 按钮的loadding旋转效果 -- 默认为 -- false
+      refreshLoading: false, // 按钮的loadding旋转效果 -- 默认为 -- false
       tableLoading: false, // 表单的loadding旋转效果 -- 默认为 -- true
+      tempData: [], // 存放源数据
+      result: [],// 存放满足查询条件的数据
     };
+  },
+  computed: {
+    ...mapState(['token']), // 获取到token
   },
   created() {
     this.getData(); // 在页面开始时获取导数据
   },
   components: {
-    factorDialog, // Dialog弹框内容 -- 提取为子组件 -- 因子
+    factorDialog, // Dialog弹框内容 -- 提取为因子子组件
   },
   methods: {
-    // Todos:重置
+    // 功能:重置
     reset() { // 刷新函数
       this.refreshLoading = true; // 开启loading效果
-      this.getData();             // 重新获取数据
-      this.staffCurrentPage = 1;  // 分页回到第一页
+      this.getData(); // 重新获取数据
+      this.staffCurrentPage = 1; // 分页回到第一页
     },
-    // Todos: 数据获取 
+    // 功能: 数据获取
     getData() {
-      this.tableLoading = false; // 开启table刷新动态效果
+      this.tableLoading = true; // 开启table刷新动态效果
       // 开始获取后台数据
-      this.$store.dispatch('getFactorData');
+      // this.$store.dispatch('getFactorData');
+      // 因子Tab数据
+      // 获取Factor请求数据
+      this.$http.get('/api/factor', {
+        responseType: 'json', // 将数据json格式转化为对象
+        headers: {
+          Authorization: this.$store.state.token,
+        },
+      })
+        .then((response) => { // 请求成功
+          if (response) {
+            console.log(response);
+            console.log('成功!');
+            // this.pushData(response); // 开启数据渲染
+            this.tableLoading = false; // 关闭列表loading
+            this.refreshLoading = false; // 关闭按钮loading
+          }
+        })
+        .catch((error) => { // 报出异常
+          console.log(error);
+          console.log('错误!');
+          if (error.response.data.message) {
+            this.$message.error(error.response.data.message);
+          } else {
+            this.$message.error('服务器连接错误！');
+            this.refreshLoading = false;
+          }
+        });
+    },
+    pushData() { // 数据处理函数
+      
     },
     handleSizeChange(val) { // 改变每页显示条数
       this.staffPageSize = val;
@@ -194,6 +175,7 @@ export default {
     handleDelete(index) { // 删除
       this.listData = this.listData.splice(index, 1);
     },
+    ...mapMutations(['setToken']),
   },
 };
 </script>

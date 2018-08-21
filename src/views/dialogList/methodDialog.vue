@@ -8,9 +8,9 @@
       width="28%">
       <el-form
        :model="ruleForm"
-       :rules="rules" 
+       :rules="rules"
         ref="ruleForm"
-        label-width="100px" 
+        label-width="100px"
         class="demo-ruleForm"
         :label-position="right">
 
@@ -69,44 +69,44 @@ export default {
   data() {
     return {
       dialogVisible: this.$store.state.dialogVisible,
-       ruleForm: {
-         name: '',      // 名称
-         standard: '',  // 标准号
-         version: '',   // 版本
-         weight: '0',    // 权重
-       },
-       rules: {
-          name: [
-            { required: true, message: '请输入名称', trigger: 'blur' },
-          ],
+      ruleForm: {
+        name: '', // 名称
+        standard: '', // 标准号
+        version: '', // 版本
+        weight: '0', // 权重
+      },
+      rules: {
+        name: [
+          { required: true, message: '请输入名称', trigger: 'blur' },
+        ],
+      },
+      pickerOptions: {
+        disabledDate(time) {
+          return time.getTime() > Date.now();
         },
-        pickerOptions: {
-          disabledDate(time) {
-            return time.getTime() > Date.now();
+        shortcuts: [{
+          text: '今天',
+          onClick(picker) {
+            picker.$emit('pick', new Date());
           },
-          shortcuts: [{
-            text: '今天',
-            onClick(picker) {
-              picker.$emit('pick', new Date());
-            }
-          }, {
-            text: '昨天',
-            onClick(picker) {
-              const date = new Date();
-              date.setTime(date.getTime() - 3600 * 1000 * 24);
-              picker.$emit('pick', date);
-            }
-          }, {
-            text: '一周前',
-            onClick(picker) {
-              const date = new Date();
-              date.setTime(date.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit('pick', date);
-            }
-          }]
-        },
-        releaseDate: '', //发布日期
-        expiryDate: '',  //失效日期
+        }, {
+          text: '昨天',
+          onClick(picker) {
+            const date = new Date();
+            date.setTime(date.getTime() - 3600 * 1000 * 24);
+            picker.$emit('pick', date);
+          },
+        }, {
+          text: '一周前',
+          onClick(picker) {
+            const date = new Date();
+            date.setTime(date.getTime() - 3600 * 1000 * 24 * 7);
+            picker.$emit('pick', date);
+          },
+        }],
+      },
+      releaseDate: '', // 发布日期
+      expiryDate: '', // 失效日期
     };
   },
   methods: {

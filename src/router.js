@@ -14,7 +14,7 @@ const router = new Router({
       component: Login,
     },
     {
-      path: '/',
+      path: '/tab',
       name: 'Tabsheet',
       component: Tabsheet,
     },

@@ -20,8 +20,8 @@
                 @keyup.enter="submit('form')" />
             <!-- Login -->
             <el-button
-              ref="loginButton"
               :loading="loading"
+              ref="loginButton"
               @click="submit('form')">Login</el-button>
           </el-form>
         </div>
@@ -43,15 +43,13 @@
 </template>
 
 <script>
-import axios from 'axios';
-
 export default {
   name: 'Login',
   data() {
     return {
       form: {
-        username: '',
-        password: '',
+        username: 'test',
+        password: 'test',
       },
       loading: false,
     };
@@ -59,37 +57,33 @@ export default {
   methods: {
     submit() {
       this.loading = true;
-      axios.post('login', {
-        username: this.form.username,  //获取登录名
-        password: this.form.password,  //获取对应密码
+      this.$http.post('/api/auth/login', {
+        username: this.form.username, // 获取登录名
+        password: this.form.password, // 获取对应密码
       })
-        .then((response) => { //成功
-          if (response) { //如果获取成功
-            // console.log(response);  //查看成功时获取的数据
-            // this.$store.mutations.getToken(response.headers.authorization);
-            this.$store.commit('setToken', response.headers.authorization);  //存到vuex中
-            // this.$utils.setCache('token', response.headers.authorization);   //存到本地
-            console.log(this.$store.state.token);
-            if (this.$store.state.token) { //获取成功
-              this.$message({ //message进入弹框 ：显示 '登录成功！'
-                message: '登录成功！',
-                type: 'success',
-                duration: 1500,
-              });
-              this.$router.push({ //路由跳转使页面进入 'summary'
-                name: 'Tabsheet',
-              });
-            } else {  //否则 ：登录失败
-              this.$router.replace('/login');
-              this.$message.error('错误！');
-            }
+        .then((response) => { // 成功
+          console.log(response); // 查看成功时获取的数据
+          this.$store.commit('setToken', response.headers.authorization); // 存到vuex中
+          console.log(this.$store.state.token);
+          if (this.$store.state.token) { // 获取成功
+            this.$message({ // message进入弹框 ：显示 '登录成功！'
+              message: '登录成功！',
+              type: 'success',
+              duration: 1500,
+            });
+            this.$router.push({ // 路由跳转使页面进入 'Tabsheet'
+              name: 'Tabsheet',
+            });
+          } else { // 获取失败
+            this.$router.replace('/login');
+            this.$message.error('错误！');
           }
         })
         .catch((error) => {
           this.loading = false;
           // 请求失败页面弹出失败框
-          // console.log(error.response.data);
-          // console.log(error.response.status);
+          console.log(error.response.data); // 数据
+          console.log(error.response.status); // 状态码
           if (error.response.data.message) {
             this.$message.error(error.response.data.message);
           } else {
@@ -102,7 +96,6 @@ export default {
 </script>
 
 <style lang="less">
-@import url(/css/icon.css);
 body {
   color: #fff;
   font-weight: 300;

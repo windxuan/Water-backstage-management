@@ -220,6 +220,7 @@ export default {
 <style lang="less">
 .analyse {
     font-family: "Microsoft YaHei";
+    color: #000;
     >.container {
         width: 100%;
         height: 65px;

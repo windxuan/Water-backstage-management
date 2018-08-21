@@ -8,9 +8,9 @@
       width="28%">
       <el-form
        :model="ruleForm"
-       :rules="rules" 
+       :rules="rules"
         ref="ruleForm"
-        label-width="100px" 
+        label-width="100px"
         class="demo-ruleForm"
         :label-position="right">
 
@@ -49,17 +49,17 @@ export default {
   data() {
     return {
       dialogVisible: this.$store.state.dialogVisible,
-       ruleForm: {
-         name: '',      // 名称
-         standard: '',  // 标准号
-         alias: '',     // 别名
-         weight: '0',   // 权重
-       },
-       rules: {
-          name: [
-            { required: true, message: '请输入名称', trigger: 'blur' },
-          ],
-        },
+      ruleForm: {
+        name: '', // 名称
+        standard: '', // 标准号
+        alias: '', // 别名
+        weight: '0', // 权重
+      },
+      rules: {
+        name: [
+          { required: true, message: '请输入名称', trigger: 'blur' },
+        ],
+      },
     };
   },
   methods: {

@@ -10,9 +10,9 @@
       <!-- from -->
       <el-form
        :model="ruleForm"
-       :rules="rules" 
+       :rules="rules"
         ref="ruleForm"
-        label-width="100px" 
+        label-width="100px"
         class="demo-ruleForm"
         :label-position="right">
 
@@ -91,31 +91,31 @@ export default {
     return {
       restaurants: [],
       timeout: null,
-      dialogVisible: this.$store.state.dialogVisible, //弹出显示隐藏状态 -- 默认为 -- 隐藏/false
+      dialogVisible: this.$store.state.dialogVisible, // 弹出显示隐藏状态 -- 默认为 -- 隐藏/false
       disabled: this.$store.state.disabled, // 禁用状态
       options: [{
         value: '选项1',
-        label: 'cm'
+        label: 'cm',
       }, {
         value: '选项2',
-        label: 'mol/L'
+        label: 'mol/L',
       }, {
         value: '选项3',
-        label: 'L'
+        label: 'L',
       }, {
         value: '选项4',
-        label: 'mm'
+        label: 'mm',
       }, {
         value: '选项5',
-        label: 'mol/KG'
+        label: 'mol/KG',
       }],
       ruleForm: {
         factorName: '', // 因子
         methodName: '', // 方法
-        unit: '', //单位
+        unit: '', // 单位
         chapter: '', // 章节
-        significant: '',    // 有效位数
-        priority: '0',  // 优先级
+        significant: '', // 有效位数
+        priority: '0', // 优先级
       },
       rules: {
         factorName: [
