@@ -51,38 +51,38 @@ export default new Vuex.Store({
   //       });
   //   },
     // 方法Tab数据
-    getMethodData(state) {
-      // 获取Method请求数据
-      this.$http.get('/api/method', {
-        responseType: 'json', // 将数据json格式转化为对象
-        timeout: 5000, // 请求时间在5秒内
-        headers: {
-          Authorization: state.token,
-        },
-      })
-        .then((response) => { // 请求成功
-          console.log(response);
-        })
-        .catch((error) => { // 爆出异常
-          console.log(error);
-        });
-    },
+    // getMethodData(state) {
+    //   // 获取Method请求数据
+    //   this.$http.get('/api/method', {
+    //     responseType: 'json', // 将数据json格式转化为对象
+    //     timeout: 5000, // 请求时间在5秒内
+    //     headers: {
+    //       Authorization: state.token,
+    //     },
+    //   })
+    //     .then((response) => { // 请求成功
+    //       console.log(response);
+    //     })
+    //     .catch((error) => { // 爆出异常
+    //       console.log(error);
+    //     });
+    // },
     // 分析Tab数据
-    getAnalyseData(state) {
-      // 获取Analyse请求数据
-      this.$http.get('/api/analyse', {
-        responseType: 'json', // 将数据json格式转化为对象
-        timeout: 5000, // 请求时间在5秒内
-        headers: {
-          Authorization: state.token,
-        },
-      })
-        .then((response) => { // 请求成功
-          console.log(response);
-        })
-        .catch((error) => { // 爆出异常
-          console.log(error);
-        });
-    },
+    // getAnalyseData(state) {
+    //   // 获取Analyse请求数据
+    //   this.$http.get('/api/analyse', {
+    //     responseType: 'json', // 将数据json格式转化为对象
+    //     timeout: 5000, // 请求时间在5秒内
+    //     headers: {
+    //       Authorization: state.token,
+    //     },
+    //   })
+    //     .then((response) => { // 请求成功
+    //       console.log(response);
+    //     })
+    //     .catch((error) => { // 爆出异常
+    //       console.log(error);
+    //     });
+    // },
   },
 });

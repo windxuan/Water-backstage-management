@@ -16,11 +16,10 @@
         background
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
-        :current-page="staffCurrentPage"
-        :page-sizes="[8 , 16, 32, staffTotalCount]"
-        :page-size="staffPageSize"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="staffTotalCount">
+        :current-page="current_page"
+        :page-size="pageSize"
+        layout="total, prev, pager, next, jumper"
+        :total="total">
         </el-pagination>
 
         <!-- 表格 -->
@@ -38,37 +37,32 @@
 
         <!-- 第一行：key -->
         <el-table-column
-        prop="date"
-        label="key"
-        width="180">
+        prop="id"
+        label="key">
         </el-table-column>
 
         <!-- 第二行：名称 -->
         <el-table-column
-        prop="name"
-        label="名称"
-        width="480">
+        prop="title"
+        label="名称">
         </el-table-column>
 
         <!-- 第三行：别名 -->
         <el-table-column
-        prop="name"
-        label="别名"
-        width="180">
+        prop="alias"
+        label="别名">
         </el-table-column>
 
         <!-- 第四行：标准号 -->
         <el-table-column
-        prop="standard"
-        label="标准号"
-        width="180">
+        prop="sn"
+        label="标准号">
         </el-table-column>
 
         <!-- 第五行：优先级 -->
         <el-table-column
-        prop="priority"
-        label="优先级"
-        width="180">
+        prop="weight"
+        label="优先级">
         </el-table-column>
 
         <!-- 第六行：操作 -->
@@ -101,10 +95,12 @@ export default {
   data() {
     return {
       listData: [], // 源数据
+      current_page: 1, // 当前分页 -- 默认为第1页
+      pageSize: 15, // 当前页面数据数 -- 当前后台分页默认为单页15条
+      total: 0, // 当前页面数据总数 -- 默认为0: --从后台获取到数据总数
+      currentData: [],
       input: '', // 模糊查询框
-      staffPageSize: 8, // 每页显示多少条数据 -- 默认为8条
-      staffCurrentPage: 1, // 第几页 -- 默认在第一页
-      staffTotalCount: 0, // 表示显示页码总数
+      // staffCurrentPage: 1, // 第几页 -- 默认在第一页
       refreshLoading: false, // 按钮的loadding旋转效果 -- 默认为 -- false
       tableLoading: false, // 表单的loadding旋转效果 -- 默认为 -- true
       tempData: [], // 存放源数据
@@ -131,20 +127,25 @@ export default {
     getData() {
       this.tableLoading = true; // 开启table刷新动态效果
       // 开始获取后台数据
-      // this.$store.dispatch('getFactorData');
-      // 因子Tab数据
       // 获取Factor请求数据
+      console.log(this.$store.state.token);
+      console.log(this.current_page);
       this.$http.get('/api/factor', {
-        responseType: 'json', // 将数据json格式转化为对象
+        // responseType: 'json', // 将数据json格式转化为对象  
+        params: {
+          page: this.current_page, // 获取到分页页数 -- 后台已分页 -- 数据量过大时依据后台分页
+        },
         headers: {
-          Authorization: this.$store.state.token,
+          'Content-Type': 'application/json',
+          Authorization: `Bearer${this.$store.state.token}`,
         },
       })
         .then((response) => { // 请求成功
           if (response) {
             console.log(response);
-            console.log('成功!');
-            // this.pushData(response); // 开启数据渲染
+            console.log(response.data);
+            // console.log('成功!');
+            this.pushData(response.data); // 开启数据渲染
             this.tableLoading = false; // 关闭列表loading
             this.refreshLoading = false; // 关闭按钮loading
           }
@@ -160,14 +161,33 @@ export default {
           }
         });
     },
-    pushData() { // 数据处理函数
-      
+    pushData(data) { // 数据处理函数
+      this.listData.splice(0, this.listData.length); // 1.清空数组
+      this.pageSize = data.per_page; // 2.获取当前页面数据数 per_page
+      this.total = data.total; // 3.获取数据总数 total
+      // 开启循环: 循环遍历当页数据
+      for (var i = 0;i < data.data.length; i++) {
+        this.currentData = []; // 设置一个空数组
+        this.currentData = data.data[i]; // 将循环遍历的数据传入数组
+        // console.log(this.currentData);
+        this.listData.push({
+          id : this.currentData.id,
+          title : this.currentData.title,
+          alias : this.currentData.alias,
+          sn : this.currentData.sn,
+          weight : this.currentData.weight,
+        });
+        // console.log(this.listData);
+      };
+      // console.log(this.listData);
     },
     handleSizeChange(val) { // 改变每页显示条数
-      this.staffPageSize = val;
+      console.log(`每页 ${val} 条`);
     },
     handleCurrentChange(val) { // 改变当前页码
-      this.staffCurrentPage = val;
+      console.log(val);
+      this.current_page = val;
+      this.getData(); // 每一次点击改变页码都获取一次数据，并重新渲染
     },
     handleEdit(index, row) { // 编辑
       console.log(index, row);

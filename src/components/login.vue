@@ -51,19 +51,20 @@ export default {
         username: 'test',
         password: 'test',
       },
-      loading: false,
+      loading: false, // 开启加载
     };
   },
   methods: {
     submit() {
-      this.loading = true;
+      this.loading = true; // 加载开启
       this.$http.post('/api/auth/login', {
         username: this.form.username, // 获取登录名
         password: this.form.password, // 获取对应密码
       })
         .then((response) => { // 成功
           console.log(response); // 查看成功时获取的数据
-          this.$store.commit('setToken', response.headers.authorization); // 存到vuex中
+          this.$store.commit('setToken', response.headers.authorization); // 存入vuex中
+          this.setCache('token', response.headers.authorization);   // 存入本地
           console.log(this.$store.state.token);
           if (this.$store.state.token) { // 获取成功
             this.$message({ // message进入弹框 ：显示 '登录成功！'
@@ -76,11 +77,11 @@ export default {
             });
           } else { // 获取失败
             this.$router.replace('/login');
-            this.$message.error('错误！');
+            this.$message.error('登陆失败！');
           }
         })
         .catch((error) => {
-          this.loading = false;
+          this.loading = false; // 加载关闭
           // 请求失败页面弹出失败框
           console.log(error.response.data); // 数据
           console.log(error.response.status); // 状态码
@@ -90,6 +91,9 @@ export default {
             this.$message.error('服务器连接错误!');
           }
         });
+    },
+    setCache(fields, data) { // 设置缓存
+      localStorage.setItem(fields.toUpperCase(), JSON.stringify(data));
     },
   },
 };

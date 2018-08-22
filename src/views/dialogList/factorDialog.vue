@@ -15,13 +15,13 @@
         :label-position="right">
 
         <!-- 名称 -->
-        <el-form-item label="名称" prop="name">
-          <el-input v-model="ruleForm.name"></el-input>
+        <el-form-item label="名称" prop="title">
+          <el-input v-model="ruleForm.title"></el-input>
         </el-form-item>
 
         <!-- 标准号 -->
         <el-form-item label="标准号">
-          <el-input v-model="ruleForm.standard"></el-input>
+          <el-input v-model="ruleForm.sn"></el-input>
         </el-form-item>
 
         <!-- 别名 -->
@@ -50,13 +50,13 @@ export default {
     return {
       dialogVisible: this.$store.state.dialogVisible,
       ruleForm: {
-        name: '', // 名称
-        standard: '', // 标准号
+        title: '', // 名称
+        sn: '', // 标准号
         alias: '', // 别名
-        weight: '0', // 权重
+        weight: '', // 优先级
       },
       rules: {
-        name: [
+        title: [
           { required: true, message: '请输入名称', trigger: 'blur' },
         ],
       },
