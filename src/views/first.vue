@@ -27,13 +27,14 @@
         <!-- el-table -- 报入总数据 : listData -->
         <el-table
         stripe
+        border
         :data="listData"
         v-loading="tableLoading"
         element-loading-text="拼命加载中"
         element-loading-spinner="el-icon-loading"
         element-loading-background="rgba(0, 0, 0, 0.8)"
         height="600"
-        style="height: 100%;margin-left: auto; margin-right: auto;text-align: center;">
+        style="height: 100%;margin-left: auto; margin-right: auto;text-align: left;">
 
         <!-- 第一行：key -->
         <el-table-column
@@ -100,7 +101,6 @@ export default {
       total: 0, // 当前页面数据总数 -- 默认为0: --从后台获取到数据总数
       currentData: [],
       input: '', // 模糊查询框
-      // staffCurrentPage: 1, // 第几页 -- 默认在第一页
       refreshLoading: false, // 按钮的loadding旋转效果 -- 默认为 -- false
       tableLoading: false, // 表单的loadding旋转效果 -- 默认为 -- true
       tempData: [], // 存放源数据
@@ -120,8 +120,8 @@ export default {
     // 功能:重置
     reset() { // 刷新函数
       this.refreshLoading = true; // 开启loading效果
+      this.current_page = 1; // 分页回到第一页
       this.getData(); // 重新获取数据
-      this.staffCurrentPage = 1; // 分页回到第一页
     },
     // 功能: 数据获取
     getData() {
@@ -188,6 +188,9 @@ export default {
       console.log(val);
       this.current_page = val;
       this.getData(); // 每一次点击改变页码都获取一次数据，并重新渲染
+    },
+    addDataList() { // 新增
+
     },
     handleEdit(index, row) { // 编辑
       console.log(index, row);

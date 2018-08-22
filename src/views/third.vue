@@ -28,6 +28,7 @@
         <!-- 报数据渲染数据 -->
         <!-- el-table -- 报入总数据 : listData -->
         <el-table
+        border
         stripe
         :data="listData"
         v-loading="tableLoading"
@@ -35,7 +36,7 @@
         element-loading-spinner="el-icon-loading"
         element-loading-background="rgba(0, 0, 0, 0.8)"
         height="600"
-        style="height: 100%;margin-left: auto; margin-right: auto;text-align: center;">
+        style="height: 100%;margin-left: auto; margin-right: auto;text-align: left;">
 
         <!-- 第一行：key -->
         <el-table-column
@@ -140,8 +141,8 @@ export default {
     // 功能:重置
     reset() { // 刷新函数
       this.refreshLoading = true; // 开启loading效果
+      this.current_page = 1; // 分页回到第一页
       this.getData(); // 重新获取数据
-      this.staffCurrentPage = 1; // 分页回到第一页
     },
     // 功能: 数据获取
     getData() {
