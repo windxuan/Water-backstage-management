@@ -3,7 +3,7 @@
         我是第一个子组件
         <div class="container">
             <!-- 新增 -->
-            <el-button class="increase" type="primary" size="medium" icon="el-icon-plus" @click="increase()">新增</el-button>
+            <el-button class="increase" type="primary" size="medium" icon="el-icon-plus" @click="isPop()">新增</el-button>
             <!-- 按模糊查询 -->
             <el-input class="ipt-factor" v-model="input" size="medium" placeholder="按输入名称查找"></el-input>
             <!-- 重置 -->
@@ -94,15 +94,74 @@
         </el-table-column>
     </el-table>
 
-      <!-- Dialog弹框内容 -->
-      <factor-dialog></factor-dialog>
+      <div class="methodDialog">
+      <!-- dialog -->
+       <!-- 这里是methodDialog方法弹框内容 -->
+      <el-dialog
+      title="add"
+      :visible.sync="dialogVisible"
+      width="28%">
+      <el-form
+       :model="ruleForm"
+       :rules="rules"
+        ref="ruleForm"
+        label-width="100px"
+        class="demo-ruleForm"
+        :label-position="right">
+
+        <!-- 名称 -->
+        <el-form-item label="名称" prop="name">
+          <el-input v-model="ruleForm.name"></el-input>
+        </el-form-item>
+
+        <!-- 标准号 -->
+        <el-form-item label="标准号">
+          <el-input v-model="ruleForm.standard"></el-input>
+        </el-form-item>
+
+        <!-- 版本 -->
+        <el-form-item label="版本">
+          <el-input v-model="ruleForm.version"></el-input>
+        </el-form-item>
+
+        <!-- 发布日期 -->
+        <el-form-item label="发布日期">
+          <el-date-picker
+            v-model="releaseDate"
+            align="right"
+            type="date"
+            placeholder="请选择发布日期"
+            :picker-options="pickerOptions">
+          </el-date-picker>
+        </el-form-item>
+
+        <!-- 失效日期 -->
+        <el-form-item label="失效日期">
+          <el-date-picker
+            v-model="expiryDate"
+            type="date"
+            placeholder="选择日期">
+          </el-date-picker>
+        </el-form-item>
+
+        <!-- 权重 -->
+        <el-form-item label="权重">
+          <el-input v-model="ruleForm.weight"></el-input>
+        </el-form-item>
+
+      </el-form>
+
+      <br>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+      </span>
+      </el-dialog>
+    </div>
     </div>
 </template>
 <script>
 import { mapState, mapMutations } from 'vuex';
-
-// 导入子组件
-import factorDialog from './dialogList/factorDialog.vue';
 
 export default {
   data() {
@@ -125,9 +184,6 @@ export default {
   },
   created() {
     this.getData(); // 在页面开始时获取导数据
-  },
-  components: {
-    factorDialog, // Dialog弹框内容 -- 提取为因子子组件
   },
   methods: {
     // 功能:重置

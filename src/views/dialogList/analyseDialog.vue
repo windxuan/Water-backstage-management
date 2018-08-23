@@ -21,6 +21,7 @@
           <!-- 因子 -->
           <!-- 获取数据的下拉框 -->
           <el-autocomplete
+          readonly='readonly'
           :disabled="disabled"
           clearable
           v-model="ruleForm.factorName"
@@ -35,6 +36,7 @@
           <!-- 方法 -->
           <!-- 获取数据的下拉框 -->
           <el-autocomplete
+          readonly='readonly'
           :disabled="disabled"
           clearable
           v-model="ruleForm.methodName"

@@ -2,8 +2,8 @@
     <div class="factor">
         我是第一个子组件
         <div class="container">
-            <!-- 新增 -->
-            <el-button class="increase" type="primary" size="medium" icon="el-icon-plus" @click="increase()">新增</el-button>
+            <!-- 新增 --> <!-- 点击事件 -->
+            <el-button class="increase" type="primary" size="medium" icon="el-icon-plus" @click="isPop()">新增</el-button>
             <!-- 按模糊查询 -->
             <el-input class="ipt-factor" v-model="input" size="medium" placeholder="按输入名称查找"></el-input>
             <!-- 重置 -->
@@ -56,7 +56,7 @@
 
         <!-- 第四行：标准号 -->
         <el-table-column
-        prop="sn"
+        prop="sn" 
         label="标准号">
         </el-table-column>
 
@@ -82,15 +82,54 @@
         </el-table-column>
     </el-table>
 
-      <!-- Dialog弹框内容 -->
-      <factor-dialog></factor-dialog>
+    <!-- add弹框 -->
+    <div class="factorDialog">
+      <!-- 这里是factorDialog因子弹框内容 -->
+      <!-- dialog -->
+      <el-dialog
+      title="add"
+      :visible.sync="dialogVisible"
+      width="28%">
+      <el-form
+      :model="ruleForm"
+      :rules="rules"
+      ref="ruleForm"
+      label-width="100px"
+      class="demo-ruleForm"
+      :label-position="right">
+
+      <!-- 名称 -->
+      <el-form-item label="名称" prop="title">
+        <el-input v-model="ruleForm.title"></el-input>
+      </el-form-item>
+
+      <!-- 标准号 -->
+      <el-form-item label="标准号">
+        <el-input v-model="ruleForm.sn"></el-input>
+      </el-form-item>
+
+      <!-- 别名 -->
+      <el-form-item label="别名">
+        <el-input v-model="ruleForm.alias"></el-input>
+      </el-form-item>
+
+      <!-- 优先级 -->
+      <el-form-item label="weight">
+        <el-input v-model="ruleForm.weight"></el-input>
+      </el-form-item>
+      </el-form>
+
+      <br>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="dialogVisible = false;emptyData();addDataList()">确 定</el-button>
+      </span>
+      </el-dialog>
+    </div>
     </div>
 </template>
 <script>
 import { mapState, mapMutations } from 'vuex';
-
-// 导入子组件
-import factorDialog from './dialogList/factorDialog.vue';
 
 export default {
   data() {
@@ -105,16 +144,25 @@ export default {
       tableLoading: false, // 表单的loadding旋转效果 -- 默认为 -- true
       tempData: [], // 存放源数据
       result: [],// 存放满足查询条件的数据
+      dialogVisible: this.$store.state.dialogVisible,
+      ruleForm: {
+        title: '', // 名称
+        sn: '', // 标准号
+        alias: '', // 别名
+        weight: '', // 优先级
+      },
+      rules: {
+        title: [
+          { required: true, message: '请输入名称', trigger: 'blur' },
+        ],
+      },
     };
   },
   computed: {
-    ...mapState(['token']), // 获取到token
+    ...mapState(['token','dialogVisible']), // 获取到token
   },
   created() {
     this.getData(); // 在页面开始时获取导数据
-  },
-  components: {
-    factorDialog, // Dialog弹框内容 -- 提取为因子子组件
   },
   methods: {
     // 功能:重置
@@ -128,8 +176,8 @@ export default {
       this.tableLoading = true; // 开启table刷新动态效果
       // 开始获取后台数据
       // 获取Factor请求数据
-      console.log(this.$store.state.token);
-      console.log(this.current_page);
+      console.log(this.$store.state.token); // 此处为什么要获取token? token的作用
+      console.log(this.current_page); // 由于是进行的后台分页 -- 此处要注意当前数据是第几页
       this.$http.get('/api/factor', {
         // responseType: 'json', // 将数据json格式转化为对象  
         params: {
@@ -189,14 +237,63 @@ export default {
       this.current_page = val;
       this.getData(); // 每一次点击改变页码都获取一次数据，并重新渲染
     },
-    addDataList() { // 新增
-
+    isPop(dialogVisible) {
+      if(dialogVisible == true) {
+        this.dialogVisible = false;
+      }else {
+        this.dialogVisible = true;
+      }
     },
-    handleEdit(index, row) { // 编辑
-      console.log(index, row);
+    emptyData() {
+      this.ruleForm = {
+        title: '',
+        sn: '',
+        alias: '',
+        weight: '',
+      };
+    },
+    addDataList() { // 新增
+      // 发送请求：发送数据 -- 发请求给后台 -- 关闭弹框
+      console.log('新增');
+      console.log(this.$store.state.token);
+      this.$http.post('/api/factor',
+      {
+        title: this.ruleForm.title,
+        sn: this.ruleForm.sn,
+        alias: this.ruleForm.alias,
+        weight: this.ruleForm.weight,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer${this.$store.state.token}`,
+        },
+      })
+        .then((response) => { // 请求成功
+          if (this.$store.state.token) {
+            console.log(response);
+            this.$message({ //message进入弹框 ：显示 '登录成功！'
+              message: '登录成功！',
+              type: 'success',
+              duration: 1500,
+            });
+          getData();
+          }
+        })
+        .catch((error) => { // 报出异常
+          console.log(error);
+          console.log('错误!');
+          if (error.response.data.message) {
+            this.$message.error(error.response.data.message);
+          } else {
+            console.log(this.ruleForm);
+            this.$message.error('服务器连接错误！');
+          }
+        });
+    },
+    handleEdit() { // 编辑
     },
     handleDelete(index) { // 删除
-      this.listData = this.listData.splice(index, 1);
     },
     ...mapMutations(['setToken']),
   },

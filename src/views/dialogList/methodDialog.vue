@@ -1,7 +1,7 @@
 <template>
-    <div class="analyseDialog">
+    <div class="methodDialog">
       <!-- dialog -->
-       这里是analyse分析弹框内容
+       <!-- 这里是methodDialog方法弹框内容 -->
       <el-dialog
       title="add"
       :visible.sync="dialogVisible"
@@ -33,7 +33,6 @@
         <el-form-item label="发布日期">
           <el-date-picker
             v-model="releaseDate"
-            align="right"
             type="date"
             placeholder="请选择发布日期"
             :picker-options="pickerOptions">

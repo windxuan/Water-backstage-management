@@ -21,7 +21,6 @@
             <!-- Login -->
             <el-button
               :loading="loading"
-              ref="loginButton"
               @click="submit('form')">Login</el-button>
           </el-form>
         </div>
@@ -57,7 +56,7 @@ export default {
   methods: {
     submit() {
       this.loading = true; // 加载开启
-      this.$http.post('/api/auth/login', {
+      this.$http.post('/api/auth/login', { // axios用post发送请求 ： username & password
         username: this.form.username, // 获取登录名
         password: this.form.password, // 获取对应密码
       })
