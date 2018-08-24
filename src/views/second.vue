@@ -2,8 +2,7 @@
     <div class="factor">
         我是第一个子组件
         <div class="container">
-            <!-- 新增 -->
-            <el-button class="increase" type="primary" size="medium" icon="el-icon-plus" @click="isPop()">新增</el-button>
+            <el-button class="increase" type="primary" size="medium" icon="el-icon-plus" @click="isPop();addEmptyData()">新增</el-button>
             <!-- 按模糊查询 -->
             <el-input class="ipt-factor" v-model="input" size="medium" placeholder="按输入名称查找"></el-input>
             <!-- 重置 -->
@@ -23,8 +22,6 @@
         </el-pagination>
 
         <!-- 表格 -->
-        <!-- 报数据渲染数据 -->
-        <!-- el-table -- 报入总数据 : listData -->
         <el-table
         stripe
         border
@@ -79,24 +76,22 @@
         </el-table-column>
 
         <!-- 第八行：操作 -->
-        <!-- 编辑 -- handleEdit -->
-        <!-- 删除 -- handleDelete -->
         <el-table-column label="操作">
         <template slot-scope="scope">
             <el-button
             size="mini"
-            @click="handleEdit">编辑</el-button>
+            @click="isEditPop();editDialog(scope);">编辑</el-button>
             <el-button
+            @click.native.prevent="handleDelete(scope.row)"
             size="mini"
-            type="danger"
-            @click="handleDelete">删除</el-button>
+            type="danger">删除</el-button>
+            {{scope.row.id}}
         </template>
         </el-table-column>
     </el-table>
 
+      <!-- add -->
       <div class="methodDialog">
-      <!-- dialog -->
-       <!-- 这里是methodDialog方法弹框内容 -->
       <el-dialog
       title="add"
       :visible.sync="dialogVisible"
@@ -106,17 +101,16 @@
        :rules="rules"
         ref="ruleForm"
         label-width="100px"
-        class="demo-ruleForm"
-        :label-position="right">
+        class="demo-ruleForm">
 
         <!-- 名称 -->
-        <el-form-item label="名称" prop="name">
-          <el-input v-model="ruleForm.name"></el-input>
+        <el-form-item label="名称" prop="title">
+          <el-input v-model="ruleForm.title"></el-input>
         </el-form-item>
 
         <!-- 标准号 -->
         <el-form-item label="标准号">
-          <el-input v-model="ruleForm.standard"></el-input>
+          <el-input v-model="ruleForm.sn"></el-input>
         </el-form-item>
 
         <!-- 版本 -->
@@ -127,18 +121,16 @@
         <!-- 发布日期 -->
         <el-form-item label="发布日期">
           <el-date-picker
-            v-model="releaseDate"
-            align="right"
+            v-model="ruleForm.issued_at"
             type="date"
-            placeholder="请选择发布日期"
-            :picker-options="pickerOptions">
+            placeholder="选择日期">
           </el-date-picker>
         </el-form-item>
 
         <!-- 失效日期 -->
         <el-form-item label="失效日期">
           <el-date-picker
-            v-model="expiryDate"
+            v-model="ruleForm.expire_at"
             type="date"
             placeholder="选择日期">
           </el-date-picker>
@@ -148,13 +140,71 @@
         <el-form-item label="权重">
           <el-input v-model="ruleForm.weight"></el-input>
         </el-form-item>
-
       </el-form>
-
       <br>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+        <el-button type="primary" @click="dialogVisible = false;addDataList()">确 定</el-button>
+      </span>
+      </el-dialog>
+    </div>
+
+    <!-- edit -->
+      <div class="methodDialog">
+      <el-dialog
+      title="编辑"
+      :visible.sync="editDialogVisible"
+      width="28%">
+      <el-form
+       :model="ruleForm"
+       :rules="rules"
+        ref="ruleForm"
+        label-width="100px"
+        class="demo-ruleForm">
+
+        <!-- 名称 -->
+        <el-form-item label="名称" prop="title">
+          <el-input v-model="ruleForm.title"></el-input>
+        </el-form-item>
+
+        <!-- 标准号 -->
+        <el-form-item label="标准号">
+          <el-input v-model="ruleForm.sn"></el-input>
+        </el-form-item>
+
+        <!-- 版本 -->
+        <el-form-item label="版本">
+          <el-input v-model="ruleForm.version"></el-input>
+        </el-form-item>
+
+        <!-- 发布日期 -->
+        <el-form-item label="发布日期">
+          <el-date-picker
+            v-model="ruleForm.issued_at"
+            type="date"
+            placeholder="选择日期">
+          </el-date-picker>
+        </el-form-item>
+
+        <!-- 失效日期 -->
+        <el-form-item label="失效日期">
+          <el-date-picker
+            v-model="ruleForm.expire_at"
+            type="date"
+            placeholder="选择日期">
+          </el-date-picker>
+        </el-form-item>
+
+        <!-- 权重 -->
+        <el-form-item label="权重">
+          <el-input v-model="ruleForm.weight"></el-input>
+        </el-form-item>
+      </el-form>
+      <br>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="editDialogVisible = false">取 消</el-button>
+        <el-button type="primary"
+         @click.native.prevent="editDialogVisible = false;handleEdit(ruleForm)">确 定</el-button>
       </span>
       </el-dialog>
     </div>
@@ -172,11 +222,34 @@ export default {
       total: 0, // 当前页面数据总数 -- 默认为0: --从后台获取到数据总数
       currentData: [],
       input: '', // 模糊查询框
-      // staffCurrentPage: 1, // 第几页 -- 默认在第一页
       refreshLoading: false, // 按钮的loadding旋转效果 -- 默认为 -- false
       tableLoading: false, // 表单的loadding旋转效果 -- 默认为 -- true
       tempData: [], // 存放源数据
       result: [],// 存放满足查询条件的数据
+      dialogVisible: this.$store.state.dialogVisible,
+      editDialogVisible: this.$store.state.editDialogVisible,
+      ruleForm: {
+        title: '', // 名称
+        sn: '', // 标准号
+        version: '', // 版本
+        issued_at: '', // 发布日期
+        expire_at: '', // 失效日期
+        weight: '', // 优先级
+      },
+      rules: {
+        title: [
+          { required: true, message: '请输入名称', trigger: 'blur' },
+          { min: 1, max: 100, message: '长度在 1 到 100 个字符', trigger: 'blur' }
+        ],
+        sn: [
+          { required: true, message: '请输入活动名称', trigger: 'blur' },
+          { min: 0, max: 20, message: '长度在 3 到 5 个字符', trigger: 'blur' }
+        ],
+        version: [
+          { required: true, message: '请输入活动名称', trigger: 'blur' },
+          { min: 0, max: 255, message: '长度在 3 到 5 个字符', trigger: 'blur' }
+        ],
+      },
     };
   },
   computed: {
@@ -211,9 +284,8 @@ export default {
       })
         .then((response) => { // 请求成功
           if (response) {
-            console.log(response);
-            console.log(response.data);
-            // console.log('成功!');
+            // console.log(response);
+            // console.log(response.data);
             this.pushData(response.data); // 开启数据渲染
             this.tableLoading = false; // 关闭列表loading
             this.refreshLoading = false; // 关闭按钮loading
@@ -248,9 +320,7 @@ export default {
           version : this.currentData.version, // 版本
           weight : this.currentData.weight, // 优先级
         });
-        // console.log(this.listData);
       };
-      // console.log(this.listData);
     },
     handleSizeChange(val) { // 改变每页显示条数
       console.log(`每页 ${val} 条`);
@@ -258,13 +328,153 @@ export default {
     handleCurrentChange(val) { // 改变当前页码
       console.log(val);
       this.current_page = val;
-      this.getData(); // 每一次点击改变页码都获取一次数据，并重新渲染
+      this.getData();
     },
-    handleEdit(index, row) { // 编辑
-      console.log(index, row);
+    isPop(dialogVisible) {
+      if(dialogVisible == true) {
+        this.dialogVisible = false;
+      }else {
+        this.dialogVisible = true;
+      }
     },
-    handleDelete(index) { // 删除
-      this.listData = this.listData.splice(index, 1);
+    isEditPop(editDialogVisible) {
+      if(editDialogVisible == true) {
+        this.editDialogVisible = false;
+      }else {
+        this.editDialogVisible = true;
+      }
+    },
+    addEmptyData() { // 每次更新清空列表
+      this.ruleForm = {
+        title: '',
+        sn: '',
+        version: '',
+        issued_at: '',
+        expire_at: '',
+        weight: '',
+      };
+    },
+    editDialog(scope) { // 编辑框获取到数据
+      console.log(scope);
+      console.log(scope.row);
+      this.ruleForm = {
+        id: scope.row.id,
+        title: scope.row.title,
+        sn: scope.row.sn,
+        version: scope.row.version,
+        issued_at: scope.row.issued_at,
+        expire_at: scope.row.expire_at,
+        weight: scope.row.weight,
+      };
+    },
+    addDataList() { // 新增
+      // 发送请求：发送数据 -- 发请求给后台 -- 关闭弹框
+      console.log('新增');
+      console.log(this.$store.state.token);
+      this.$http.post('/api/method',
+      {
+        title: this.ruleForm.title,
+        sn: this.ruleForm.sn,
+        version: this.ruleForm.version,
+        issued_at: this.ruleForm.issued_at,
+        expire_at: this.ruleForm.expire_at,
+        weight: this.ruleForm.weight,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer${this.$store.state.token}`,
+        },
+      })
+        .then((response) => { // 请求成功
+          if (this.$store.state.token) {
+            console.log(response);
+            this.$message({ //message进入弹框 ：显示 '登录成功！'
+              message: '添加成功！',
+              type: 'success',
+              duration: 1500,
+            });
+            this.getData();
+          }
+        })
+        .catch((error) => { // 报出异常
+          console.log(error);
+          console.log('错误!');
+          if (error.response.data.message) {
+            this.$message.error(error.response.data.message);
+          } else {
+            console.log(this.ruleForm);
+            this.$message.error('服务器连接错误！');
+          }
+        });
+    },
+     handleEdit(scope) { // 编辑
+      console.log(scope);
+      console.log('编辑');
+      console.log(scope.id);
+      console.log(this.$store.state.token);
+      this.$http.put(`/api/method/${scope.id}`,
+      {
+        title: this.ruleForm.title,
+        sn: this.ruleForm.sn,
+        version: this.ruleForm.version,
+        issued_at: this.ruleForm.issued_at,
+        expire_at: this.ruleForm.expire_at,
+        weight: this.ruleForm.weight,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer${this.$store.state.token}`,
+        },
+      })
+        .then((response) => { // 请求成功
+          if (this.$store.state.token) {
+            console.log(response);
+            this.$message({ //message进入弹框 ：显示 '登录成功！'
+              message: '编辑成功！',
+              type: 'success',
+              duration: 1500,
+            });
+          this.getData();
+          }
+        })
+        .catch((error) => { // 报出异常
+          console.log(error);
+          console.log('错误!');
+          this.$message.error('编辑失败！');
+        });
+    },
+    handleDelete(scope, index) { // 删除
+      this.scoperows = scope;
+      console.log('删除');
+      this.index = scope.id;
+      console.log(scope);
+      console.log(this.index);
+      console.log(this.$store.state.token);
+      this.$http.delete(`/api/method/${this.index}`,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer${this.$store.state.token}`,
+        },
+      })
+        .then((response) => { // 请求成功
+          if (this.$store.state.token) {
+            console.log(response);
+            this.$message({
+              message: '删除成功！',
+              type: 'success',
+              duration: 1500,
+            });
+          this.getData();
+          }
+        })
+        .catch((error) => { // 报出异常
+          console.log(error);
+          console.log('错误!');
+          this.$message.error('删除失败！');
+        });
     },
     ...mapMutations(['setToken']),
   },

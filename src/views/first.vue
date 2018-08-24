@@ -2,14 +2,13 @@
     <div class="factor">
         我是第一个子组件
         <div class="container">
-            <!-- 新增 --> <!-- 点击事件 -->
-            <el-button class="increase" type="primary" size="medium" icon="el-icon-plus" @click="isPop()">新增</el-button>
+            <el-button class="increase" type="primary" size="medium" icon="el-icon-plus" @click="isPop();addEmptyData()">新增</el-button>
             <!-- 按模糊查询 -->
             <el-input class="ipt-factor" v-model="input" size="medium" placeholder="按输入名称查找"></el-input>
             <!-- 重置 -->
             <el-button class="btn-reset" size="medium" @click="reset()" :loading="refreshLoading">重置</el-button>
             <!-- 查找 -->
-            <el-button class="btn-searth" type="primary" size="medium" icon="el-icon-search" @click="searth()">查找</el-button>
+            <el-button class="btn-searth" type="primary" size="medium" icon="el-icon-search" @click="handleRefer()">查找</el-button>
         </div>
         <!-- 分页 -->
         <el-pagination
@@ -67,17 +66,16 @@
         </el-table-column>
 
         <!-- 第六行：操作 -->
-        <!-- 编辑 -- handleEdit -->
-        <!-- 删除 -- handleDelete -->
         <el-table-column label="操作">
         <template slot-scope="scope">
             <el-button
             size="mini"
-            @click="handleEdit">编辑</el-button>
+            @click="isEditPop();editDialog(scope);">编辑</el-button>
             <el-button
+            @click.native.prevent="handleDelete(scope.row)"
             size="mini"
-            type="danger"
-            @click="handleDelete">删除</el-button>
+            type="danger">删除</el-button>
+            {{scope.row.id}}
         </template>
         </el-table-column>
     </el-table>
@@ -95,8 +93,7 @@
       :rules="rules"
       ref="ruleForm"
       label-width="100px"
-      class="demo-ruleForm"
-      :label-position="right">
+      class="demo-ruleForm">
 
       <!-- 名称 -->
       <el-form-item label="名称" prop="title">
@@ -104,12 +101,12 @@
       </el-form-item>
 
       <!-- 标准号 -->
-      <el-form-item label="标准号">
+      <el-form-item label="标准号" prop="sn">
         <el-input v-model="ruleForm.sn"></el-input>
       </el-form-item>
 
       <!-- 别名 -->
-      <el-form-item label="别名">
+      <el-form-item label="别名" prop="alias">
         <el-input v-model="ruleForm.alias"></el-input>
       </el-form-item>
 
@@ -122,7 +119,52 @@
       <br>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogVisible = false;emptyData();addDataList()">确 定</el-button>
+        <el-button type="primary" @click="dialogVisible = false;addDataList()">确 定</el-button>
+      </span>
+      </el-dialog>
+    </div>
+
+    <!-- edit弹框 -->
+    <div class="editFactorDialog">
+      <!-- 这里是editFactorDialog因子弹框内容 -->
+      <!-- dialog -->
+      <el-dialog
+      title="编辑"
+      :visible.sync="editDialogVisible"
+      width="28%">
+      <el-form
+      :model="ruleForm"
+      :rules="rules"
+      ref="ruleForm"
+      label-width="100px"
+      class="demo-ruleForm">
+
+      <!-- 名称 -->
+      <el-form-item label="名称" prop="title">
+        <el-input v-model="ruleForm.title"></el-input>
+      </el-form-item>
+
+      <!-- 标准号 -->
+      <el-form-item label="标准号" prop="sn">
+        <el-input v-model="ruleForm.sn"></el-input>
+      </el-form-item>
+
+      <!-- 别名 -->
+      <el-form-item label="别名" prop="alias">
+        <el-input v-model="ruleForm.alias"></el-input>
+      </el-form-item>
+
+      <!-- 优先级 -->
+      <el-form-item label="weight">
+        <el-input v-model="ruleForm.weight"></el-input>
+      </el-form-item>
+      </el-form>
+
+      <br>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="editDialogVisible = false">取 消</el-button>
+        <el-button type="primary"
+         @click.native.prevent="editDialogVisible = false;handleEdit(ruleForm)">确 定</el-button>
       </span>
       </el-dialog>
     </div>
@@ -144,7 +186,9 @@ export default {
       tableLoading: false, // 表单的loadding旋转效果 -- 默认为 -- true
       tempData: [], // 存放源数据
       result: [],// 存放满足查询条件的数据
+      scoperows: [],
       dialogVisible: this.$store.state.dialogVisible,
+      editDialogVisible: this.$store.state.editDialogVisible,
       ruleForm: {
         title: '', // 名称
         sn: '', // 标准号
@@ -154,6 +198,15 @@ export default {
       rules: {
         title: [
           { required: true, message: '请输入名称', trigger: 'blur' },
+          { min: 1, max: 100, message: '长度在 1 到 100 个字符', trigger: 'blur' }
+        ],
+        sn: [
+          { required: true, message: '请输入活动名称', trigger: 'blur' },
+          { min: 0, max: 20, message: '长度在 3 到 5 个字符', trigger: 'blur' }
+        ],
+        alias: [
+          { required: true, message: '请输入活动名称', trigger: 'blur' },
+          { min: 0, max: 100, message: '长度在 3 到 5 个字符', trigger: 'blur' }
         ],
       },
     };
@@ -165,14 +218,12 @@ export default {
     this.getData(); // 在页面开始时获取导数据
   },
   methods: {
-    // 功能:重置
-    reset() { // 刷新函数
+    reset() { // 重置
       this.refreshLoading = true; // 开启loading效果
       this.current_page = 1; // 分页回到第一页
       this.getData(); // 重新获取数据
     },
-    // 功能: 数据获取
-    getData() {
+    getData() {  // 数据获取
       this.tableLoading = true; // 开启table刷新动态效果
       // 开始获取后台数据
       // 获取Factor请求数据
@@ -190,7 +241,7 @@ export default {
       })
         .then((response) => { // 请求成功
           if (response) {
-            console.log(response);
+            // console.log(response);
             console.log(response.data);
             // console.log('成功!');
             this.pushData(response.data); // 开启数据渲染
@@ -244,7 +295,25 @@ export default {
         this.dialogVisible = true;
       }
     },
-    emptyData() {
+    isEditPop(editDialogVisible) {
+      if(editDialogVisible == true) {
+        this.editDialogVisible = false;
+      }else {
+        this.editDialogVisible = true;
+      }
+    },
+    editDialog(scope) { // 编辑框获取到数据
+      console.log(scope);
+      console.log(scope.row);
+      this.ruleForm = {
+        id: scope.row.id,
+        title: scope.row.title,
+        sn: scope.row.sn,
+        alias: scope.row.alias,
+        weight: scope.row.weight,
+      };
+    },
+    addEmptyData() { // 每次更新清空列表
       this.ruleForm = {
         title: '',
         sn: '',
@@ -273,27 +342,87 @@ export default {
           if (this.$store.state.token) {
             console.log(response);
             this.$message({ //message进入弹框 ：显示 '登录成功！'
-              message: '登录成功！',
+              message: '添加成功！',
               type: 'success',
               duration: 1500,
             });
-          getData();
+            this.getData();
           }
         })
         .catch((error) => { // 报出异常
           console.log(error);
           console.log('错误!');
-          if (error.response.data.message) {
-            this.$message.error(error.response.data.message);
-          } else {
-            console.log(this.ruleForm);
-            this.$message.error('服务器连接错误！');
-          }
+          this.addEmptyData();
+          this.$message.error('新增失败！');
         });
     },
-    handleEdit() { // 编辑
+    handleEdit(scope) { // 编辑
+      console.log(scope);
+      console.log('编辑');
+      console.log(scope.id);
+      console.log(this.$store.state.token);
+      this.$http.put(`/api/factor/${scope.id}`,
+      {
+        title: this.ruleForm.title,
+        sn: this.ruleForm.sn,
+        alias: this.ruleForm.alias,
+        weight: this.ruleForm.weight,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer${this.$store.state.token}`,
+        },
+      })
+        .then((response) => { // 请求成功
+          if (this.$store.state.token) {
+            console.log(response);
+            this.$message({ //message进入弹框 ：显示 '登录成功！'
+              message: '编辑成功！',
+              type: 'success',
+              duration: 1500,
+            });
+          this.getData();
+          }
+        })
+        .catch((error) => { // 报出异常
+          console.log(error);
+          console.log('错误!');
+          this.$message.error('编辑失败！');
+        });
     },
-    handleDelete(index) { // 删除
+    handleDelete(scope, index) { // 删除
+      this.scoperows = scope;
+      console.log('删除');
+      this.index = scope.id;
+      console.log(scope);
+      console.log(this.index);
+      console.log(this.$store.state.token);
+      this.$http.delete(`/api/factor/${this.index}`,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer${this.$store.state.token}`,
+        },
+      })
+        .then((response) => { // 请求成功
+          if (this.$store.state.token) {
+            console.log(response);
+            this.$message({
+              message: '删除成功！',
+              type: 'success',
+              duration: 1500,
+            });
+          this.getData();
+          }
+        })
+        .catch((error) => { // 报出异常
+          console.log(error);
+          console.log('错误!');
+          this.$message.error('删除失败！');
+        });
+    },
+    handleRefer() { //查询
     },
     ...mapMutations(['setToken']),
   },
