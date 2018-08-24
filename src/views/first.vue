@@ -1,14 +1,20 @@
 <template>
     <div class="factor">
-        我是第一个子组件
         <div class="container">
             <el-button class="increase" type="primary" size="medium" icon="el-icon-plus" @click="isPop();addEmptyData()">新增</el-button>
             <!-- 按模糊查询 -->
-            <el-input class="ipt-factor" v-model="input" size="medium" placeholder="按输入名称查找"></el-input>
+            <el-input
+             class="ipt-factor"
+             v-model="value"
+             size="medium"
+             placeholder="按输入名称查找"
+             @keyup.enter.native="handleRefer"
+             clearable>
+              <!-- 查找 -->
+              <el-button class="btn-searth" slot="append" size="medium" icon="el-icon-search" @click="handleRefer">查找</el-button>
+             </el-input>
             <!-- 重置 -->
             <el-button class="btn-reset" size="medium" @click="reset()" :loading="refreshLoading">重置</el-button>
-            <!-- 查找 -->
-            <el-button class="btn-searth" type="primary" size="medium" icon="el-icon-search" @click="handleRefer()">查找</el-button>
         </div>
         <!-- 分页 -->
         <el-pagination
@@ -75,7 +81,6 @@
             @click.native.prevent="handleDelete(scope.row)"
             size="mini"
             type="danger">删除</el-button>
-            {{scope.row.id}}
         </template>
         </el-table-column>
     </el-table>
@@ -181,11 +186,11 @@ export default {
       pageSize: 15, // 当前页面数据数 -- 当前后台分页默认为单页15条
       total: 0, // 当前页面数据总数 -- 默认为0: --从后台获取到数据总数
       currentData: [],
-      input: '', // 模糊查询框
       refreshLoading: false, // 按钮的loadding旋转效果 -- 默认为 -- false
       tableLoading: false, // 表单的loadding旋转效果 -- 默认为 -- true
+      value: '', // 搜索查询
       tempData: [], // 存放源数据
-      result: [],// 存放满足查询条件的数据
+      result: [], // 存放满足查询条件的数据
       scoperows: [],
       dialogVisible: this.$store.state.dialogVisible,
       editDialogVisible: this.$store.state.editDialogVisible,
@@ -255,7 +260,7 @@ export default {
           if (error.response.data.message) {
             this.$message.error(error.response.data.message);
           } else {
-            this.$message.error('服务器连接错误！');
+            this.$message.error('数据获取失败！');
             this.refreshLoading = false;
           }
         });
@@ -423,6 +428,37 @@ export default {
         });
     },
     handleRefer() { //查询
+      // 获取数据
+      this.$http.get('/api/factor', {
+        // responseType: 'json', // 将数据json格式转化为对象  
+        params: {
+          return_list: 1, // 获取到分页页数 -- 后台已分页 -- 数据量过大时依据后台分页
+        },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer${this.$store.state.token}`,
+        },
+      })
+        .then((response) => { // 请求成功
+          if (response) {
+            console.log(response);
+            console.log(response.data);
+            // console.log('成功!');
+            this.pushData(response.data); // 开启数据渲染
+            this.tableLoading = false; // 关闭列表loading
+            this.refreshLoading = false; // 关闭按钮loading
+          }
+        })
+        .catch((error) => { // 报出异常
+          console.log(error);
+          console.log('错误!');
+          if (error.response.data.message) {
+            this.$message.error(error.response.data.message);
+          } else {
+            this.$message.error('数据获取失败！');
+            this.refreshLoading = false;
+          }
+        });
     },
     ...mapMutations(['setToken']),
   },
@@ -434,26 +470,21 @@ export default {
     >.container {
         width: 100%;
         height: 65px;
-        border: 1px solid #000;
         >.increase {
             margin-top: 20px;
-            border: 1px solid #eee;
             float: left;
         }
         >.btn-searth,.btn-reset {
             margin-top: 20px;
-            border: 1px solid #666;
             float: right;
         }
         >.ipt-factor {
-            border: 1px solid #eee;
             margin-top: 20px;
             width: 250px;
         }
     }
     >.el-pagination {
         margin-top: 10px;
-        border: 1px solid #000;
         float: right;
     }
 }

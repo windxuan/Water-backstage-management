@@ -1,14 +1,20 @@
 <template>
     <div class="factor">
-        我是第一个子组件
         <div class="container">
             <el-button class="increase" type="primary" size="medium" icon="el-icon-plus" @click="isPop();addEmptyData()">新增</el-button>
             <!-- 按模糊查询 -->
-            <el-input class="ipt-factor" v-model="input" size="medium" placeholder="按输入名称查找"></el-input>
+            <el-input
+             class="ipt-factor"
+             v-model="input"
+             size="medium" 
+             placeholder="按输入名称查找"
+             @keyup.enter.native="searchData"
+             clearable>
+              <!-- 查找 -->
+              <el-button class="btn-searth" slot="append" size="medium" icon="el-icon-search" @click="handleRefer()">查找</el-button>
+             </el-input>
             <!-- 重置 -->
             <el-button class="btn-reset" size="medium" @click="reset()" :loading="refreshLoading">重置</el-button>
-            <!-- 查找 -->
-            <el-button class="btn-searth" type="primary" size="medium" icon="el-icon-search" @click="searth()">查找</el-button>
         </div>
         <!-- 分页 -->
         <el-pagination
@@ -85,7 +91,6 @@
             @click.native.prevent="handleDelete(scope.row)"
             size="mini"
             type="danger">删除</el-button>
-            {{scope.row.id}}
         </template>
         </el-table-column>
     </el-table>

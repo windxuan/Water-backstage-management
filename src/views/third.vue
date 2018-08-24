@@ -1,13 +1,28 @@
 <template>
     <div class="analyse">
-        我是第三个子组件
         <div class="container">
           <!-- 新增 -->
           <el-button class="increase" type="primary" size="medium" icon="el-icon-plus" @click="isPop()">新增</el-button>
           <!-- 因子 --查询 -->
-          因子<el-input class="ipt-factor" size="medium" placeholder="按输入名称查找"></el-input>
+          <el-input
+             class="ipt-factor"
+             v-model="input"
+             size="medium" 
+             placeholder="按输入名称查找"
+             @keyup.enter.native="searchData"
+             clearable>
+            <el-button class="btn-searth" slot="append" size="medium" icon="el-icon-search" @click="handleRefer()">因子</el-button>
+          </el-input>
           <!-- 方法 --查询 -->
-          查询<el-input class="ipt-query" size="medium" placeholder="按输入名称查找"></el-input>
+          <el-input
+             class="ipt-query"
+             v-model="input"
+             size="medium" 
+             placeholder="按输入名称查找"
+             @keyup.enter.native="searchData"
+             clearable>
+            <el-button class="btn-searth" slot="append" size="medium" icon="el-icon-search" @click="handleRefer()">方法</el-button>
+          </el-input>
           <!-- 重置 -->
           <el-button class="btn-reset" size="medium" @click="reset()">重置</el-button>
           <!-- 查找 -->
@@ -87,17 +102,15 @@
         </el-table-column>
 
         <!-- 第九行：操作 -->
-        <!-- 编辑 -- handleEdit -->
-        <!-- 删除 -- handleDelete -->
         <el-table-column label="操作">
         <template slot-scope="scope">
             <el-button
             size="mini"
             @click="handleEdit">编辑</el-button>
             <el-button
+            @click.native.prevent="handleDelete(scope.row)"
             size="mini"
-            type="danger"
-            @click="handleDelete">删除</el-button>
+            type="danger">删除</el-button>
         </template>
         </el-table-column>
     </el-table>
@@ -123,7 +136,6 @@
           <!-- 因子 -->
           <!-- 获取数据的下拉框 -->
           <el-autocomplete
-          readonly='readonly'
           :disabled="disabled"
           clearable
           v-model="ruleForm.factorName"
@@ -138,7 +150,6 @@
           <!-- 方法 -->
           <!-- 获取数据的下拉框 -->
           <el-autocomplete
-          readonly='readonly'
           :disabled="disabled"
           clearable
           v-model="ruleForm.methodName"
@@ -386,8 +397,36 @@ export default {
     handleEdit(index, row) { // 编辑
       console.log(index, row);
     },
-    handleDelete(index) { // 删除
-      this.listData = this.listData.splice(index, 1);
+    handleDelete(scope, index) { // 删除
+      this.scoperows = scope;
+      console.log('删除');
+      this.index = scope.id;
+      console.log(scope);
+      console.log(this.index);
+      console.log(this.$store.state.token);
+      this.$http.delete(`/api/analyse/${this.index}`,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer${this.$store.state.token}`,
+        },
+      })
+        .then((response) => { // 请求成功
+          if (this.$store.state.token) {
+            console.log(response);
+            this.$message({
+              message: '删除成功！',
+              type: 'success',
+              duration: 1500,
+            });
+          this.getData();
+          }
+        })
+        .catch((error) => { // 报出异常
+          console.log(error);
+          console.log('错误!');
+          this.$message.error('删除失败！');
+        });
     },
     loadAll() { // 弹窗搜索
       return [
