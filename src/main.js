@@ -13,6 +13,7 @@ import store from './store';
 // 组件化
 Vue.use(ElementUI);
 
+// 全局配置
 Vue.prototype.$http = axios;
 
 // 关闭消息提示

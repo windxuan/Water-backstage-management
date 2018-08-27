@@ -234,7 +234,7 @@ export default {
       this.tableLoading = true; // 开启table刷新动态效果
       // 开始获取后台数据
       // 获取Factor请求数据
-      console.log(this.$store.state.token); // 此处为什么要获取token? token的作用
+      console.log(this.$store.state.token); // 检查获取token
       console.log(this.current_page); // 由于是进行的后台分页 -- 此处要注意当前数据是第几页
       this.$http.get('/api/factor', {
         // responseType: 'json', // 将数据json格式转化为对象  
@@ -431,13 +431,13 @@ export default {
     },
     handleRefer() { //查询
       console.log('查询');
-      console.log(this.$store.state.token);
+      console.log(this.$store.state.token); // 检查token
       if (this.value != '') {
         // 获取数据
       this.$http.get('/api/factor', {
         // responseType: 'json', // 将数据json格式转化为对象  
         params: {
-          return_list: 1, // 获取到分页页数 -- 后台已分页 -- 数据量过大时依据后台分页
+          return_list: 1, // 获取到全部数据查询
         },
         headers: {
           'Content-Type': 'application/json',
