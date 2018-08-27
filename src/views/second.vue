@@ -8,10 +8,10 @@
              v-model="input"
              size="medium" 
              placeholder="按输入名称查找"
-             @keyup.enter.native="searchData"
+             @keyup.enter.native="handleRefer"
              clearable>
               <!-- 查找 -->
-              <el-button class="btn-searth" slot="append" size="medium" icon="el-icon-search" @click="handleRefer()">查找</el-button>
+              <el-button class="btn-searth" slot="append" size="medium" icon="el-icon-search" @click="handleRefer">查找</el-button>
              </el-input>
             <!-- 重置 -->
             <el-button class="btn-reset" size="medium" @click="reset()" :loading="refreshLoading">重置</el-button>
@@ -229,8 +229,9 @@ export default {
       input: '', // 模糊查询框
       refreshLoading: false, // 按钮的loadding旋转效果 -- 默认为 -- false
       tableLoading: false, // 表单的loadding旋转效果 -- 默认为 -- true
+      value: '', // 搜索查询
       tempData: [], // 存放源数据
-      result: [],// 存放满足查询条件的数据
+      result: [], // 存放满足查询条件的数据
       dialogVisible: this.$store.state.dialogVisible,
       editDialogVisible: this.$store.state.editDialogVisible,
       ruleForm: {
@@ -479,6 +480,39 @@ export default {
           console.log(error);
           console.log('错误!');
           this.$message.error('删除失败！');
+        });
+    },
+    handleRefer() { // 查询
+      // 获取数据 (全部)
+      this.$http.get('/api/method', {
+        // responseType: 'json', // 将数据json格式转化为对象  
+        params: {
+          return_list: 1, // 获取到分页页数 -- 后台已分页 -- 数据量过大时依据后台分页
+        },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer${this.$store.state.token}`,
+        },
+      })
+        .then((response) => { // 请求成功
+          if (response) {
+            console.log(response);
+            console.log(response.data);
+            // console.log('成功!');
+            this.pushData(response.data); // 开启数据渲染
+            this.tableLoading = false; // 关闭列表loading
+            this.refreshLoading = false; // 关闭按钮loading
+          }
+        })
+        .catch((error) => { // 报出异常
+          console.log(error);
+          console.log('错误!');
+          if (error.response.data.message) {
+            this.$message.error(error.response.data.message);
+          } else {
+            this.$message.error('数据获取失败！');
+            this.refreshLoading = false;
+          }
         });
     },
     ...mapMutations(['setToken']),

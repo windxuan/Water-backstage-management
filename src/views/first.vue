@@ -23,7 +23,7 @@
         @current-change="handleCurrentChange"
         :current-page="current_page"
         :page-size="pageSize"
-        layout="total, prev, pager, next, jumper"
+        layout="layout"
         :total="total">
         </el-pagination>
 
@@ -189,11 +189,11 @@ export default {
       refreshLoading: false, // 按钮的loadding旋转效果 -- 默认为 -- false
       tableLoading: false, // 表单的loadding旋转效果 -- 默认为 -- true
       value: '', // 搜索查询
-      tempData: [], // 存放源数据
       result: [], // 存放满足查询条件的数据
       scoperows: [],
       dialogVisible: this.$store.state.dialogVisible,
       editDialogVisible: this.$store.state.editDialogVisible,
+      layout: "total, prev, pager, next, jumper",
       ruleForm: {
         title: '', // 名称
         sn: '', // 标准号
@@ -217,7 +217,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(['token','dialogVisible']), // 获取到token
+    ...mapState(['token']), // 获取到token
   },
   created() {
     this.getData(); // 在页面开始时获取导数据
@@ -428,7 +428,10 @@ export default {
         });
     },
     handleRefer() { //查询
-      // 获取数据
+      console.log('查询');
+      console.log(this.$store.state.token);
+      if (this.value != '') {
+        // 获取数据
       this.$http.get('/api/factor', {
         // responseType: 'json', // 将数据json格式转化为对象  
         params: {
@@ -444,7 +447,7 @@ export default {
             console.log(response);
             console.log(response.data);
             // console.log('成功!');
-            this.pushData(response.data); // 开启数据渲染
+            this.referData(response.data); // 开启数据渲染
             this.tableLoading = false; // 关闭列表loading
             this.refreshLoading = false; // 关闭按钮loading
           }
@@ -452,13 +455,36 @@ export default {
         .catch((error) => { // 报出异常
           console.log(error);
           console.log('错误!');
-          if (error.response.data.message) {
-            this.$message.error(error.response.data.message);
-          } else {
-            this.$message.error('数据获取失败！');
-            this.refreshLoading = false;
-          }
+          this.$message.error('数据获取失败！');
+          this.refreshLoading = false;
         });
+      }
+    },
+    referData(data) { // 查询数据渲染
+      console.log('查询数据渲染!');
+      this.listData.splice(0, this.listData.length); // 1.清空数组
+      this.pageSize = 15; // 2.当前页面数据数
+      this.total = data.total; // 查询后总数据
+      this.result = [];
+      console.log(this.listData);
+      console.log(data);
+      console.log(this.value);
+      // 开启循环: 循环遍历当页数据
+      data.forEach((element, index) => {
+        if (element.title.indexOf(this.value) >= 0) { // 当条件满足 -- 有一个元素能被匹配到时
+          this.result = data[index]; // 将循环遍历的数据放入空数组
+          console.log(data[index]);
+          this.listData.push({
+            id : this.result.id,
+            title : this.result.title,
+            alias : this.result.alias,
+            sn : this.result.sn,
+            weight : this.result.weight,
+          });
+        }
+      });
+      this.layout = "total";
+      this.total = this.listData.length;
     },
     ...mapMutations(['setToken']),
   },
