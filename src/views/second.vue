@@ -5,7 +5,7 @@
             <!-- 按模糊查询 -->
             <el-input
              class="ipt-factor"
-             v-model="input"
+             v-model="value"
              size="medium" 
              placeholder="按输入名称查找"
              @keyup.enter.native="handleRefer"
@@ -23,7 +23,7 @@
         @current-change="handleCurrentChange"
         :current-page="current_page"
         :page-size="pageSize"
-        layout="total, prev, pager, next, jumper"
+        :layout="layout"
         :total="total">
         </el-pagination>
 
@@ -226,14 +226,13 @@ export default {
       pageSize: 15, // 当前页面数据数 -- 当前后台分页默认为单页15条
       total: 0, // 当前页面数据总数 -- 默认为0: --从后台获取到数据总数
       currentData: [],
-      input: '', // 模糊查询框
       refreshLoading: false, // 按钮的loadding旋转效果 -- 默认为 -- false
       tableLoading: false, // 表单的loadding旋转效果 -- 默认为 -- true
       value: '', // 搜索查询
-      tempData: [], // 存放源数据
       result: [], // 存放满足查询条件的数据
       dialogVisible: this.$store.state.dialogVisible,
       editDialogVisible: this.$store.state.editDialogVisible,
+      layout: "total, prev, pager, next, jumper",
       ruleForm: {
         title: '', // 名称
         sn: '', // 标准号
@@ -270,9 +269,10 @@ export default {
       this.refreshLoading = true; // 开启loading效果
       this.current_page = 1; // 分页回到第一页
       this.getData(); // 重新获取数据
+      this.value = ''; // 清空搜索框
+      this.layout = "total, prev, pager, next, jumper";
     },
-    // 功能: 数据获取
-    getData() {
+    getData() { // 数据获取
       this.tableLoading = true; // 开启table刷新动态效果
       // 开始获取后台数据
       // 获取Factor请求数据
@@ -482,8 +482,11 @@ export default {
           this.$message.error('删除失败！');
         });
     },
-    handleRefer() { // 查询
-      // 获取数据 (全部)
+    handleRefer() { //查询
+      console.log('查询');
+      console.log(this.$store.state.token);
+      if (this.value != '') {
+        // 获取数据
       this.$http.get('/api/method', {
         // responseType: 'json', // 将数据json格式转化为对象  
         params: {
@@ -499,7 +502,7 @@ export default {
             console.log(response);
             console.log(response.data);
             // console.log('成功!');
-            this.pushData(response.data); // 开启数据渲染
+            this.referData(response.data); // 开启数据渲染
             this.tableLoading = false; // 关闭列表loading
             this.refreshLoading = false; // 关闭按钮loading
           }
@@ -507,13 +510,42 @@ export default {
         .catch((error) => { // 报出异常
           console.log(error);
           console.log('错误!');
-          if (error.response.data.message) {
-            this.$message.error(error.response.data.message);
-          } else {
-            this.$message.error('数据获取失败！');
-            this.refreshLoading = false;
-          }
+          this.$message.error('数据获取失败！');
+          this.refreshLoading = false;
         });
+      } else {
+        this.layout = "total, prev, pager, next, jumper";
+        this.getData();
+      }
+    },
+    referData(data) { // 查询数据渲染
+      console.log('查询数据渲染!');
+      this.listData.splice(0, this.listData.length); // 1.清空数组
+      this.pageSize = 15; // 2.当前页面数据数
+      this.total = data.total; // 查询后总数据
+      this.result = [];
+      console.log(this.listData);
+      console.log(data);
+      console.log(this.value);
+      // 开启循环: 循环遍历当页数据
+      data.forEach((element, index) => {
+        if (element.title.indexOf(this.value) >= 0) { // 当条件满足 -- 有一个元素能被匹配到时
+          this.result = data[index]; // 将循环遍历的数据放入空数组
+          console.log(data[index]);
+          this.listData.push({
+            id : this.result.id,
+            title : this.result.title,
+            sn : this.result.sn,
+            issued_at : this.result.issued_at,
+            expire_at : this.result.expire_at,
+            version : this.result.version,
+            weight : this.result.weight,
+          });
+        }
+      })
+      this.layout = "total";
+      this.total = this.listData.length;
+      console.log(this.total);
     },
     ...mapMutations(['setToken']),
   },
@@ -525,7 +557,6 @@ export default {
     >.container {
         width: 100%;
         height: 65px;
-        border: 1px solid #000;
         >.increase {
             margin-top: 20px;
             border: 1px solid #eee;
@@ -533,7 +564,7 @@ export default {
         }
         >.btn-searth,.btn-reset {
             margin-top: 20px;
-            border: 1px solid #666;
+            border: 1px solid #e1e1e1;
             float: right;
         }
         >.ipt-factor {
@@ -544,7 +575,7 @@ export default {
     }
     >.el-pagination {
         margin-top: 10px;
-        border: 1px solid #000;
+        border: 1px solid #eee;
         float: right;
     }
 }

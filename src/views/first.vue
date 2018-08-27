@@ -23,7 +23,7 @@
         @current-change="handleCurrentChange"
         :current-page="current_page"
         :page-size="pageSize"
-        layout="layout"
+        :layout="layout"
         :total="total">
         </el-pagination>
 
@@ -227,6 +227,8 @@ export default {
       this.refreshLoading = true; // 开启loading效果
       this.current_page = 1; // 分页回到第一页
       this.getData(); // 重新获取数据
+      this.value = ''; // 清空搜索框
+      this.layout = "total, prev, pager, next, jumper";
     },
     getData() {  // 数据获取
       this.tableLoading = true; // 开启table刷新动态效果
@@ -458,6 +460,9 @@ export default {
           this.$message.error('数据获取失败！');
           this.refreshLoading = false;
         });
+      } else {
+        this.layout = "total, prev, pager, next, jumper";
+        this.getData();
       }
     },
     referData(data) { // 查询数据渲染
@@ -482,9 +487,10 @@ export default {
             weight : this.result.weight,
           });
         }
-      });
+      })
       this.layout = "total";
       this.total = this.listData.length;
+      console.log(this.total);
     },
     ...mapMutations(['setToken']),
   },

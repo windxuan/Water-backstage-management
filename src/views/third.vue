@@ -6,7 +6,7 @@
           <!-- 因子 --查询 -->
           <el-input
              class="ipt-factor"
-             v-model="input"
+             v-model="value"
              size="medium" 
              placeholder="按输入名称查找"
              @keyup.enter.native="searchData"
@@ -16,7 +16,7 @@
           <!-- 方法 --查询 -->
           <el-input
              class="ipt-query"
-             v-model="input"
+             v-model="value"
              size="medium" 
              placeholder="按输入名称查找"
              @keyup.enter.native="searchData"
@@ -506,7 +506,6 @@ export default {
     >.container {
         width: 100%;
         height: 65px;
-        border: 1px solid #000;
         >.increase {
             margin-top: 20px;
             border: 1px solid #eee;
@@ -514,7 +513,7 @@ export default {
         }
         >.btn-searth,.btn-reset {
             margin-top: 20px;
-            border: 1px solid #666;
+            border: 1px solid #e1e1e1;
             float: right;
         }
         >.el-input {
@@ -524,7 +523,7 @@ export default {
     }
     >.el-pagination {
         margin-top: 10px;
-        border: 1px solid #000;
+        border: 1px solid #eee;
         float: right;
     }
 }
