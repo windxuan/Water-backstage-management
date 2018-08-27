@@ -2,31 +2,29 @@
     <div class="analyse">
         <div class="container">
           <!-- 新增 -->
-          <el-button class="increase" type="primary" size="medium" icon="el-icon-plus" @click="isPop()">新增</el-button>
+          <el-button class="increase" type="primary" size="medium" icon="el-icon-plus" @click="isPop();addEmptyData()">新增</el-button>
           <!-- 因子 --查询 -->
           <el-input
              class="ipt-factor"
-             v-model="value"
+             v-model="factorValue"
              size="medium" 
              placeholder="按输入名称查找"
-             @keyup.enter.native="searchData"
+            @keyup.enter.native="factorHandleRefer"
              clearable>
-            <el-button class="btn-searth" slot="append" size="medium" icon="el-icon-search" @click="handleRefer()">因子</el-button>
+            <el-button class="btn-searth" slot="append" size="medium" icon="el-icon-search" @click="factorHandleRefer()">因子</el-button>
           </el-input>
           <!-- 方法 --查询 -->
           <el-input
              class="ipt-query"
-             v-model="value"
+             v-model="methodValue"
              size="medium" 
              placeholder="按输入名称查找"
-             @keyup.enter.native="searchData"
+             @keyup.enter.native="methodHandleRefer"
              clearable>
-            <el-button class="btn-searth" slot="append" size="medium" icon="el-icon-search" @click="handleRefer()">方法</el-button>
+            <el-button class="btn-searth" slot="append" size="medium" icon="el-icon-search" @click="methodHandleRefer()">方法</el-button>
           </el-input>
           <!-- 重置 -->
           <el-button class="btn-reset" size="medium" @click="reset()">重置</el-button>
-          <!-- 查找 -->
-          <el-button class="btn-searth" type="primary" size="medium" icon="el-icon-search" @click="searth()">查找</el-button>
         </div>
         <!-- 分页 -->
         <el-pagination
@@ -35,7 +33,7 @@
         @current-change="handleCurrentChange"
         :current-page="current_page"
         :page-size="pageSize"
-        layout="total, prev, pager, next, jumper"
+        :layout="layout"
         :total="total">
         </el-pagination>
 
@@ -212,16 +210,18 @@ export default {
       pageSize: 15, // 当前页面数据数 -- 当前后台分页默认为单页15条
       total: 0, // 当前页面数据总数 -- 默认为0: --从后台获取到数据总数
       currentData: [],
-      input: '', // 模糊查询框
-      // staffCurrentPage: 1, // 第几页 -- 默认在第一页
       refreshLoading: false, // 按钮的loadding旋转效果 -- 默认为 -- false
       tableLoading: false, // 表单的loadding旋转效果 -- 默认为 -- true
       tempData: [], // 存放源数据
       result: [],// 存放满足查询条件的数据
       restaurants: [],
       timeout: null,
+      layout: "total, prev, pager, next, jumper",
       dialogVisible: this.$store.state.dialogVisible, // 弹出显示隐藏状态 -- 默认为 -- 隐藏/false
       disabled: this.$store.state.disabled, // 禁用状态
+      factorValue: '', // 因子查询
+      methodValue: '', // 方法查询
+      result: [], // 存放满足查询条件的数据
       options: [{
         value: '选项1',
         label: 'cm',
@@ -266,10 +266,12 @@ export default {
     this.restaurants = this.loadAll();
   },
   methods: {
-    reset() { // 刷新函数
+    reset() { // 重置
       this.refreshLoading = true; // 开启loading效果
       this.current_page = 1; // 分页回到第一页
       this.getData(); // 重新获取数据
+      this.value = ''; // 清空搜索框
+      this.layout = "total, prev, pager, next, jumper";
     },
     getData() { // 数据获取
       this.tableLoading = true; // 开启table刷新动态效果
@@ -300,12 +302,7 @@ export default {
         .catch((error) => { // 报出异常
           console.log(error);
           console.log('错误!');
-          if (error.response.data.message) {
-            this.$message.error(error.response.data.message);
-          } else {
-            this.$message.error('服务器连接错误！');
-            this.refreshLoading = false;
-          }
+          this.$message.error('服务器连接错误！');
         });
     },
     pushData(data) { // 数据处理函数
@@ -348,9 +345,12 @@ export default {
     },
     addEmptyData() { // 每次更新清空列表
       this.ruleForm = {
-        title: '',
-        sn: '',
-        alias: '',
+        factor_title: '',
+        method_title: '',
+        chapter: '',
+        uom: '',
+        significand: '',
+        decimals: '',
         weight: '',
       };
     },
@@ -358,11 +358,14 @@ export default {
       // 发送请求：发送数据 -- 发请求给后台 -- 关闭弹框
       console.log('新增');
       console.log(this.$store.state.token);
-      this.$http.post('/api/factor',
+      this.$http.post('/api/analyse',
       {
-        title: this.ruleForm.title,
-        sn: this.ruleForm.sn,
-        alias: this.ruleForm.alias,
+        factor_title: this.ruleForm.factor_title,
+        method_title: this.ruleForm.method_title,
+        chapter: this.ruleForm.chapter,
+        uom: this.ruleForm.uom,
+        significand: this.ruleForm.significand,
+        decimals: this.ruleForm.decimals,
         weight: this.ruleForm.weight,
       },
       {
@@ -385,17 +388,47 @@ export default {
         .catch((error) => { // 报出异常
           console.log(error);
           console.log('错误!');
-          if (error.response.data.message) {
-            this.$message.error(error.response.data.message);
-          } else {
-            this.addEmptyData();
-            this.$message.error('服务器连接错误！');
-            console.log(this.ruleForm);
-          }
+          this.addEmptyData();
+          this.$message.error('新增失败！');
         });
     },
-    handleEdit(index, row) { // 编辑
-      console.log(index, row);
+    handleEdit(scope) { // 编辑
+      console.log(scope);
+      console.log('编辑');
+      console.log(scope.id);
+      console.log(this.$store.state.token);
+      this.$http.put(`/api/analyse /${scope.id}`,
+      {
+        factor_title: this.ruleForm.factor_title,
+        method_title: this.ruleForm.method_title,
+        chapter: this.ruleForm.chapter,
+        uom: this.ruleForm.uom,
+        significand: this.ruleForm.significand,
+        decimals: this.ruleForm.decimals,
+        weight: this.ruleForm.weight,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer${this.$store.state.token}`,
+        },
+      })
+        .then((response) => { // 请求成功
+          if (this.$store.state.token) {
+            console.log(response);
+            this.$message({ //message进入弹框 ：显示 '登录成功！'
+              message: '编辑成功！',
+              type: 'success',
+              duration: 1500,
+            });
+          this.getData();
+          }
+        })
+        .catch((error) => { // 报出异常
+          console.log(error);
+          console.log('错误!');
+          this.$message.error('编辑失败！');
+        });
     },
     handleDelete(scope, index) { // 删除
       this.scoperows = scope;
@@ -427,6 +460,70 @@ export default {
           console.log('错误!');
           this.$message.error('删除失败！');
         });
+    },
+    factorHandleRefer() { // 查询
+      console.log('基于因子查询');
+      console.log(this.$store.state.token);
+      if (this.value != '') {
+        // 获取数据
+      this.$http.get('/api/analyse', {
+        // responseType: 'json', // 将数据json格式转化为对象  
+        params: {
+          return_list: 1,
+        },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer${this.$store.state.token}`,
+        },
+      })
+        .then((response) => { // 请求成功
+          if (response) {
+            console.log(response);
+            console.log(response.data);
+            // console.log('成功!');
+            this.referData(response.data); // 开启数据渲染
+            this.tableLoading = false; // 关闭列表loading
+            this.refreshLoading = false; // 关闭按钮loading
+          }
+        })
+        .catch((error) => { // 报出异常
+          console.log(error);
+          console.log('错误!');
+          this.$message.error('数据获取失败！');
+          this.refreshLoading = false;
+        });
+      } else {
+        this.layout = "total, prev, pager, next, jumper";
+        this.getData();
+      }
+    },
+    referData(data) { // 查询数据渲染
+      console.log('查询数据渲染!');
+      this.listData.splice(0, this.listData.length); // 1.清空数组
+      this.total = data.total; // 查询后总数据
+      this.result = [];
+      console.log(this.listData);
+      console.log(data);
+      console.log(this.factorValue);
+      data.forEach((element, index) => {
+        if (element.factor_title.indexOf(this.factorValue) >= 0) { // 当条件满足 -- 有一个元素能被匹配到时
+          this.result = data[index]; // 将循环遍历的数据放入空数组
+          console.log(data[index]);
+          this.listData.push({
+            id : this.result.id,
+            factor_title : this.result.factor_title,
+            method_title : this.result.method_title,
+            chapter : this.result.chapter,
+            uom : this.result.uom,
+            significand : this.result.significand,
+            decimals : this.result.decimals,
+            weight : this.result.weight,
+          });
+        }
+      })
+      this.layout = "total";
+      this.total = this.listData.length;
+      console.log(this.total);
     },
     loadAll() { // 弹窗搜索
       return [

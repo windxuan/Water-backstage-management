@@ -1,5 +1,5 @@
 <template>
-    <div class="factor">
+    <div class="method">
         <div class="container">
             <el-button class="increase" type="primary" size="medium" icon="el-icon-plus" @click="isPop();addEmptyData()">新增</el-button>
             <!-- 按模糊查询 -->
@@ -406,15 +406,11 @@ export default {
         .catch((error) => { // 报出异常
           console.log(error);
           console.log('错误!');
-          if (error.response.data.message) {
-            this.$message.error(error.response.data.message);
-          } else {
-            console.log(this.ruleForm);
-            this.$message.error('服务器连接错误！');
-          }
+          this.addEmptyData();
+          this.$message.error('新增失败！');
         });
     },
-     handleEdit(scope) { // 编辑
+    handleEdit(scope) { // 编辑
       console.log(scope);
       console.log('编辑');
       console.log(scope.id);
@@ -482,7 +478,7 @@ export default {
           this.$message.error('删除失败！');
         });
     },
-    handleRefer() { //查询
+    handleRefer() { // 查询
       console.log('查询');
       console.log(this.$store.state.token);
       if (this.value != '') {
@@ -490,7 +486,7 @@ export default {
       this.$http.get('/api/method', {
         // responseType: 'json', // 将数据json格式转化为对象  
         params: {
-          return_list: 1, // 获取到分页页数 -- 后台已分页 -- 数据量过大时依据后台分页
+          return_list: 1,
         },
         headers: {
           'Content-Type': 'application/json',
@@ -521,7 +517,6 @@ export default {
     referData(data) { // 查询数据渲染
       console.log('查询数据渲染!');
       this.listData.splice(0, this.listData.length); // 1.清空数组
-      this.pageSize = 15; // 2.当前页面数据数
       this.total = data.total; // 查询后总数据
       this.result = [];
       console.log(this.listData);
@@ -552,7 +547,7 @@ export default {
 };
 </script>
 <style lang="less">
-.factor {
+.method {
     font-family: "Microsoft YaHei";
     >.container {
         width: 100%;

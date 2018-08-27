@@ -437,7 +437,7 @@ export default {
       this.$http.get('/api/factor', {
         // responseType: 'json', // 将数据json格式转化为对象  
         params: {
-          return_list: 1, // 获取到全部数据查询
+          return_list: 1,
         },
         headers: {
           'Content-Type': 'application/json',
@@ -468,7 +468,6 @@ export default {
     referData(data) { // 查询数据渲染
       console.log('查询数据渲染!');
       this.listData.splice(0, this.listData.length); // 1.清空数组
-      this.pageSize = 15; // 2.当前页面数据数
       this.total = data.total; // 查询后总数据
       this.result = [];
       console.log(this.listData);
