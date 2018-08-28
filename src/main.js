@@ -17,7 +17,7 @@ Vue.use(ElementUI);
 // 全局配置
 Vue.prototype.$http = axios;
 axios.defaults.paramsSerializer = params => qs.stringify(params, { arrayFormat: 'indices' });
-// http://localhost:8080/api/factor?where%5Btitle%5D=this.value
+// http://localhost:8080/api/factor?where%5Btitle%5D=te
 
 // 关闭消息提示
 Vue.config.productionTip = false;
