@@ -577,7 +577,8 @@ export default {
       this.$http.get('/api/analyse', {
         // responseType: 'json', // 将数据json格式转化为对象  
         params: {
-          return_list: 1,
+          // return_list: 1,
+          query: this.factorValue,
         },
         headers: {
           'Content-Type': 'application/json',
@@ -589,7 +590,7 @@ export default {
             console.log(response);
             console.log(response.data);
             // console.log('成功!');
-            this.referData(response.data); // 开启数据渲染
+            this.pushData(response.data); // 开启数据渲染
             this.tableLoading = false; // 关闭列表loading
             this.refreshLoading = false; // 关闭按钮loading
           }
@@ -605,34 +606,34 @@ export default {
         this.getData();
       }
     },
-    referData(data) { // 查询数据渲染
-      console.log('查询数据渲染!');
-      this.listData.splice(0, this.listData.length); // 1.清空数组
-      this.total = data.total; // 查询后总数据
-      this.result = [];
-      console.log(this.listData);
-      console.log(data);
-      console.log(this.factorValue);
-      data.forEach((element, index) => {
-        if (element.factor_title.indexOf(this.factorValue) >= 0) { // 当条件满足 -- 有一个元素能被匹配到时
-          this.result = data[index]; // 将循环遍历的数据放入空数组
-          console.log(data[index]);
-          this.listData.push({
-            id : this.result.id,
-            factor_title : this.result.factor_title,
-            method_title : this.result.method_title,
-            chapter : this.result.chapter,
-            uom : this.result.uom,
-            significand : this.result.significand,
-            decimals : this.result.decimals,
-            weight : this.result.weight,
-          });
-        }
-      })
-      this.layout = "total";
-      this.total = this.listData.length;
-      console.log(this.total);
-    },
+    // referData(data) { // 查询数据渲染
+    //   console.log('查询数据渲染!');
+    //   this.listData.splice(0, this.listData.length); // 1.清空数组
+    //   this.total = data.total; // 查询后总数据
+    //   this.result = [];
+    //   console.log(this.listData);
+    //   console.log(data);
+    //   console.log(this.factorValue);
+    //   data.forEach((element, index) => {
+    //     if (element.factor_title.indexOf(this.factorValue) >= 0) { // 当条件满足 -- 有一个元素能被匹配到时
+    //       this.result = data[index]; // 将循环遍历的数据放入空数组
+    //       console.log(data[index]);
+    //       this.listData.push({
+    //         id : this.result.id,
+    //         factor_title : this.result.factor_title,
+    //         method_title : this.result.method_title,
+    //         chapter : this.result.chapter,
+    //         uom : this.result.uom,
+    //         significand : this.result.significand,
+    //         decimals : this.result.decimals,
+    //         weight : this.result.weight,
+    //       });
+    //     }
+    //   })
+    //   this.layout = "total";
+    //   this.total = this.listData.length;
+    //   console.log(this.total);
+    // },
     methodHandleRefer() { // 查询
       console.log('基于因子查询');
       console.log(this.$store.state.token);
@@ -641,7 +642,8 @@ export default {
       this.$http.get('/api/analyse', {
         // responseType: 'json', // 将数据json格式转化为对象  
         params: {
-          return_list: 1,
+          // return_list: 1,
+          query: this.methodValue,
         },
         headers: {
           'Content-Type': 'application/json',
@@ -653,7 +655,7 @@ export default {
             console.log(response);
             console.log(response.data);
             // console.log('成功!');
-            this.methodData(response.data); // 开启数据渲染
+            this.pushData(response.data); // 开启数据渲染
             this.tableLoading = false; // 关闭列表loading
             this.refreshLoading = false; // 关闭按钮loading
           }
@@ -669,34 +671,34 @@ export default {
         this.getData();
       }
     },
-    methodData(data) { // 查询数据渲染
-      console.log('查询数据渲染!');
-      this.listData.splice(0, this.listData.length); // 1.清空数组
-      this.total = data.total; // 查询后总数据
-      this.result = [];
-      console.log(this.listData);
-      console.log(data);
-      console.log(this.factorValue);
-      data.forEach((element, index) => {
-        if (element.method_title.indexOf(this.methodValue) >= 0) { // 当条件满足 -- 有一个元素能被匹配到时
-          this.result = data[index]; // 将循环遍历的数据放入空数组
-          console.log(data[index]);
-          this.listData.push({
-            id : this.result.id,
-            factor_title : this.result.factor_title,
-            method_title : this.result.method_title,
-            chapter : this.result.chapter,
-            uom : this.result.uom,
-            significand : this.result.significand,
-            decimals : this.result.decimals,
-            weight : this.result.weight,
-          });
-        }
-      })
-      this.layout = "total";
-      this.total = this.listData.length;
-      console.log(this.total);
-    },
+    // methodData(data) { // 查询数据渲染
+    //   console.log('查询数据渲染!');
+    //   this.listData.splice(0, this.listData.length); // 1.清空数组
+    //   this.total = data.total; // 查询后总数据
+    //   this.result = [];
+    //   console.log(this.listData);
+    //   console.log(data);
+    //   console.log(this.factorValue);
+    //   data.forEach((element, index) => {
+    //     if (element.method_title.indexOf(this.methodValue) >= 0) { // 当条件满足 -- 有一个元素能被匹配到时
+    //       this.result = data[index]; // 将循环遍历的数据放入空数组
+    //       console.log(data[index]);
+    //       this.listData.push({
+    //         id : this.result.id,
+    //         factor_title : this.result.factor_title,
+    //         method_title : this.result.method_title,
+    //         chapter : this.result.chapter,
+    //         uom : this.result.uom,
+    //         significand : this.result.significand,
+    //         decimals : this.result.decimals,
+    //         weight : this.result.weight,
+    //       });
+    //     }
+    //   })
+    //   this.layout = "total";
+    //   this.total = this.listData.length;
+    //   console.log(this.total);
+    // },
     // loadAll() { // 弹窗搜索 -- 此处需要匹配到后台数据
     //   return [
     //     { value: '三全鲜食（北新泾店）', address: '长宁区新渔路144号' },
