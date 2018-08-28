@@ -458,7 +458,7 @@ export default {
       // 发送请求：发送数据 -- 发请求给后台 -- 关闭弹框
       console.log('新增');
       console.log(this.$store.state.token);
-      this.$http.post('/api/analyse',
+      this.$http.post('/api/analyse', 
       {
         id: this.ruleForm.id,
         factor_id: this.ruleForm.factor_id,
