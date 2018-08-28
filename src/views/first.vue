@@ -437,7 +437,8 @@ export default {
       this.$http.get('/api/factor', {
         // responseType: 'json', // 将数据json格式转化为对象  
         params: {
-          return_list: 1,
+          // return_list: 1,
+          where: {title: `this.value`}, // 基于后台数据搜索
         },
         headers: {
           'Content-Type': 'application/json',
