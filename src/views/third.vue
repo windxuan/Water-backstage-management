@@ -578,7 +578,8 @@ export default {
         // responseType: 'json', // 将数据json格式转化为对象  
         params: {
           // return_list: 1,
-          query: this.factorValue,
+          factor_title: this.factorValue,
+          method_title: this.methodValue,
         },
         headers: {
           'Content-Type': 'application/json',
@@ -643,7 +644,8 @@ export default {
         // responseType: 'json', // 将数据json格式转化为对象  
         params: {
           // return_list: 1,
-          query: this.methodValue,
+          factor_title: this.factorValue,
+          method_title: this.methodValue,
         },
         headers: {
           'Content-Type': 'application/json',
