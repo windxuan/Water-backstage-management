@@ -270,7 +270,8 @@ export default {
       this.refreshLoading = true; // 开启loading效果
       this.current_page = 1; // 分页回到第一页
       this.getData(); // 重新获取数据
-      this.value = ''; // 清空搜索框
+      this.factorValue = ''; // 清空搜索框
+      this.methodValue = '';
       this.layout = "total, prev, pager, next, jumper";
     },
     getData() { // 数据获取
@@ -464,7 +465,7 @@ export default {
     factorHandleRefer() { // 查询
       console.log('基于因子查询');
       console.log(this.$store.state.token);
-      if (this.value != '') {
+      if (this.factorValue != '') {
         // 获取数据
       this.$http.get('/api/analyse', {
         // responseType: 'json', // 将数据json格式转化为对象  
@@ -507,6 +508,70 @@ export default {
       console.log(this.factorValue);
       data.forEach((element, index) => {
         if (element.factor_title.indexOf(this.factorValue) >= 0) { // 当条件满足 -- 有一个元素能被匹配到时
+          this.result = data[index]; // 将循环遍历的数据放入空数组
+          console.log(data[index]);
+          this.listData.push({
+            id : this.result.id,
+            factor_title : this.result.factor_title,
+            method_title : this.result.method_title,
+            chapter : this.result.chapter,
+            uom : this.result.uom,
+            significand : this.result.significand,
+            decimals : this.result.decimals,
+            weight : this.result.weight,
+          });
+        }
+      })
+      this.layout = "total";
+      this.total = this.listData.length;
+      console.log(this.total);
+    },
+    methodHandleRefer() { // 查询
+      console.log('基于因子查询');
+      console.log(this.$store.state.token);
+      if (this.methodValue != '') {
+        // 获取数据
+      this.$http.get('/api/analyse', {
+        // responseType: 'json', // 将数据json格式转化为对象  
+        params: {
+          return_list: 1,
+        },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer${this.$store.state.token}`,
+        },
+      })
+        .then((response) => { // 请求成功
+          if (response) {
+            console.log(response);
+            console.log(response.data);
+            // console.log('成功!');
+            this.methodData(response.data); // 开启数据渲染
+            this.tableLoading = false; // 关闭列表loading
+            this.refreshLoading = false; // 关闭按钮loading
+          }
+        })
+        .catch((error) => { // 报出异常
+          console.log(error);
+          console.log('错误!');
+          this.$message.error('数据获取失败！');
+          this.refreshLoading = false;
+        });
+      } else {
+        this.layout = "total, prev, pager, next, jumper";
+        this.getData();
+      }
+    },
+    methodData(data) { // 查询数据渲染
+      console.log('查询数据渲染!');
+      this.listData.splice(0, this.listData.length); // 1.清空数组
+      this.total = data.total; // 查询后总数据
+      this.result = [];
+      console.log(this.listData);
+      console.log(data);
+      console.log(this.factorValue);
+      data.forEach((element, index) => {
+        if (element.method_title.indexOf(this.methodValue) >= 0) { // 当条件满足 -- 有一个元素能被匹配到时
           this.result = data[index]; // 将循环遍历的数据放入空数组
           console.log(data[index]);
           this.listData.push({
